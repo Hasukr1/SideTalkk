@@ -57,6 +57,12 @@
 
     .auth-box h2 { text-align: center; color: var(--text); }
 
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .auth-input {
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--border);
@@ -64,6 +70,11 @@
       padding: 12px;
       border-radius: 8px;
       outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .auth-input:focus {
+      border-color: var(--accent);
     }
 
     .btn {
@@ -74,19 +85,32 @@
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
+      transition: background 0.2s, transform 0.1s;
     }
 
     .btn:hover { background: var(--accent-hover); }
+    .btn:active { transform: scale(0.98); }
+
+    .auth-switch-container {
+      text-align: center;
+    }
 
     .auth-switch {
       font-size: 0.85rem;
-      text-align: center;
       color: var(--subtext);
       cursor: pointer;
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 6px;
+      user-select: none;
+      transition: color 0.2s ease, background-color 0.2s ease;
     }
 
-    .auth-switch:hover { text-decoration: underline; color: var(--text); }
+    .auth-switch:hover {
+      text-decoration: underline;
+      color: var(--text);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
 
     /* Main Chat UI */
     .chat-card {
@@ -241,21 +265,33 @@
 
   <!-- AUTH OVERLAY -->
   <div class="auth-overlay" id="authOverlay">
+    
+    <!-- LOGIN BOX -->
     <div class="auth-box" id="loginBox">
       <h2>SideTalkk Login</h2>
-      <input type="text" id="loginUser" class="auth-input" placeholder="Username">
-      <input type="password" id="loginPass" class="auth-input" placeholder="Password">
-      <button class="btn" id="btnLogin">Log In</button>
-      <div class="auth-switch" onclick="toggleAuth(true)">Don't have an account? Register</div>
+      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+        <input type="text" id="loginUser" class="auth-input" placeholder="Username" required autocomplete="username">
+        <input type="password" id="loginPass" class="auth-input" placeholder="Password" required autocomplete="current-password">
+        <button type="submit" class="btn" id="btnLogin">Log In</button>
+      </form>
+      <div class="auth-switch-container">
+        <span class="auth-switch" onclick="toggleAuth(true)">Don't have an account? Register</span>
+      </div>
     </div>
 
+    <!-- REGISTER BOX -->
     <div class="auth-box" id="regBox" style="display: none;">
       <h2>Register</h2>
-      <input type="text" id="regUser" class="auth-input" placeholder="Username">
-      <input type="password" id="regPass" class="auth-input" placeholder="Password">
-      <button class="btn" id="btnReg">Create Account</button>
-      <div class="auth-switch" onclick="toggleAuth(false)">Already have an account? Log In</div>
+      <form class="auth-form" id="regForm" onsubmit="handleRegister(event)">
+        <input type="text" id="regUser" class="auth-input" placeholder="Username" required autocomplete="username">
+        <input type="password" id="regPass" class="auth-input" placeholder="Password" required autocomplete="new-password">
+        <button type="submit" class="btn" id="btnReg">Create Account</button>
+      </form>
+      <div class="auth-switch-container">
+        <span class="auth-switch" onclick="toggleAuth(false)">Already have an account? Log In</span>
+      </div>
     </div>
+
   </div>
 
   <!-- CHAT UI -->
@@ -316,7 +352,8 @@
     }
 
     // REGISTER ACCOUNT
-    document.getElementById('btnReg').onclick = async () => {
+    async function handleRegister(e) {
+      if (e) e.preventDefault();
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
@@ -331,10 +368,11 @@
         alert("Account created!");
         loginUser(user);
       }
-    };
+    }
 
     // LOGIN ACCOUNT
-    document.getElementById('btnLogin').onclick = async () => {
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
@@ -350,7 +388,7 @@
       } else {
         alert("User does not exist!");
       }
-    };
+    }
 
     function loginUser(user) {
       currentUser = user;
