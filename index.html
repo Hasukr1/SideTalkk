@@ -3,772 +3,463 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sidetalkk — Realtime Chat App</title>
-
-  <!-- Google Fonts & Font Awesome Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
-  <!-- Application Stylesheet -->
+  <title>Sidetalkk — Live Chat</title>
   <style>
     :root {
-      --bg-main: #0f172a;
+      --bg-dark: #0f172a;
       --bg-sidebar: #1e293b;
-      --bg-card: #334155;
       --bg-chat: #0f172a;
-      --bg-input: #1e293b;
-      --border-color: #334155;
+      --bg-card: #334155;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --bubble-sent: #6366f1;
-      --bubble-received: #334155;
-      --badge-bg: #475569;
-    }
-
-    [data-theme="light"] {
-      --bg-main: #f1f5f9;
-      --bg-sidebar: #ffffff;
-      --bg-card: #e2e8f0;
-      --bg-chat: #f8fafc;
-      --bg-input: #ffffff;
-      --border-color: #cbd5e1;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --bubble-sent: #6366f1;
-      --bubble-received: #e2e8f0;
-      --badge-bg: #cbd5e1;
+      --msg-sent: #4f46e5;
+      --msg-received: #334155;
+      --border: #334155;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
-    body, html {
-      height: 100%;
-      width: 100%;
-      background-color: var(--bg-main);
+    body {
+      background-color: var(--bg-dark);
       color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       overflow: hidden;
     }
 
+    /* Main Container */
     .app-container {
+      width: 100%;
+      max-width: 1100px;
+      height: 90vh;
+      background-color: var(--bg-sidebar);
+      border-radius: 16px;
       display: flex;
-      height: 100vh;
-      width: 100vw;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border);
+      overflow: hidden;
     }
 
-    /* Sidebar Styles */
+    /* Sidebar */
     .sidebar {
-      width: 300px;
-      background-color: var(--bg-sidebar);
-      border-right: 1px solid var(--border-color);
+      width: 280px;
+      background-color: #111827;
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      transition: all 0.3s ease;
-      z-index: 10;
-    }
-
-    .sidebar-header {
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
+      padding: 1rem;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 1.25rem;
-      color: var(--accent);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
     }
 
-    .theme-toggle-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background-color: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
       font-size: 1.2rem;
-      padding: 5px;
-      transition: color 0.2s;
     }
 
-    .theme-toggle-btn:hover {
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .user-profile {
+      background-color: var(--bg-card);
+      padding: 0.75rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .user-profile label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .user-profile input {
+      width: 100%;
+      background: transparent;
+      border: none;
       color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
     }
 
-    .room-section {
-      padding: 20px;
-      flex-grow: 1;
-      overflow-y: auto;
-    }
-
-    .section-title {
+    .room-list-header {
       font-size: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
       color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .room-list {
-      list-style: none;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
     }
 
     .room-item {
-      padding: 10px 14px;
+      padding: 0.6rem 0.8rem;
       border-radius: 8px;
       cursor: pointer;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
       color: var(--text-muted);
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      margin-bottom: 0.25rem;
     }
 
     .room-item:hover, .room-item.active {
       background-color: var(--bg-card);
       color: var(--text-main);
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .room-item.active {
-      border-left: 3px solid var(--accent);
-    }
-
-    .join-room-box {
-      margin-top: 15px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .join-input {
+    /* Main Chat Area */
+    .chat-area {
       flex: 1;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background-color: var(--bg-input);
-      color: var(--text-main);
-      outline: none;
-      font-size: 0.85rem;
-    }
-
-    .btn-action {
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      transition: background 0.2s;
-    }
-
-    .btn-action:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .user-profile {
-      padding: 15px 20px;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      color: white;
-      font-size: 0.9rem;
-    }
-
-    .user-info {
-      flex-grow: 1;
-      overflow: hidden;
-    }
-
-    .user-name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .user-status {
-      font-size: 0.75rem;
-      color: #10b981;
-    }
-
-    /* Main Chat Panel */
-    .chat-panel {
-      flex-grow: 1;
       display: flex;
       flex-direction: column;
       background-color: var(--bg-chat);
     }
 
     .chat-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: var(--bg-sidebar);
     }
 
-    .chat-title-container h2 {
+    .chat-header-info h2 {
       font-size: 1.1rem;
       font-weight: 600;
     }
 
-    .chat-title-container p {
+    .chat-header-info p {
       font-size: 0.8rem;
       color: var(--text-muted);
     }
 
-    .chat-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .icon-btn {
-      background: none;
-      border: none;
+    .clear-btn {
+      background: transparent;
+      border: 1px solid var(--border);
       color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 1.1rem;
-      padding: 6px;
-      border-radius: 4px;
+      font-size: 0.8rem;
       transition: all 0.2s;
     }
 
-    .icon-btn:hover {
-      color: var(--text-main);
-      background-color: var(--bg-card);
+    .clear-btn:hover {
+      background-color: #ef4444;
+      color: white;
+      border-color: #ef4444;
     }
 
-    /* Messages Box */
+    /* Messages List */
     .messages-container {
-      flex-grow: 1;
-      padding: 24px;
+      flex: 1;
+      padding: 1.5rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 1rem;
     }
 
-    .message-wrapper {
-      display: flex;
-      gap: 12px;
-      max-width: 75%;
-    }
-
-    .message-wrapper.sent {
-      align-self: flex-end;
-      flex-direction: row-reverse;
-    }
-
-    .message-wrapper.received {
-      align-self: flex-start;
-    }
-
-    .message-content {
+    .message {
       display: flex;
       flex-direction: column;
+      max-width: 65%;
     }
 
-    .message-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
+    .message.sent {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message.received {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .message-meta {
       font-size: 0.75rem;
       color: var(--text-muted);
-    }
-
-    .message-wrapper.sent .message-header {
-      justify-content: flex-end;
+      margin-bottom: 0.25rem;
+      display: flex;
+      gap: 0.5rem;
     }
 
     .message-bubble {
-      padding: 12px 16px;
-      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
       font-size: 0.95rem;
       line-height: 1.4;
       word-break: break-word;
-      white-space: pre-wrap;
     }
 
-    .message-wrapper.sent .message-bubble {
-      background-color: var(--bubble-sent);
+    .message.sent .message-bubble {
+      background-color: var(--msg-sent);
       color: white;
       border-bottom-right-radius: 2px;
     }
 
-    .message-wrapper.received .message-bubble {
-      background-color: var(--bubble-received);
+    .message.received .message-bubble {
+      background-color: var(--msg-received);
       color: var(--text-main);
       border-bottom-left-radius: 2px;
     }
 
-    .message-attachment {
-      max-width: 100%;
-      border-radius: 8px;
-      margin-top: 8px;
-      display: block;
-    }
-
-    /* Input Bar */
+    /* Input Box */
     .input-container {
-      padding: 16px 24px;
-      background-color: var(--bg-sidebar);
-      border-top: 1px solid var(--border-color);
-    }
-
-    .input-box {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
       display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 10px 14px;
+      gap: 0.75rem;
+      align-items: center;
+      background-color: var(--bg-sidebar);
     }
 
-    .chat-textarea {
-      flex-grow: 1;
-      background: none;
-      border: none;
-      outline: none;
+    .message-input {
+      flex: 1;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
       color: var(--text-main);
       font-size: 0.95rem;
-      resize: none;
-      max-height: 120px;
-      min-height: 24px;
-      line-height: 1.4;
+      outline: none;
+      transition: border 0.2s;
     }
 
-    .file-input-hidden {
-      display: none;
+    .message-input:focus {
+      border-color: var(--accent);
     }
 
-    /* Responsive Design */
+    .send-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background-color: var(--accent-hover);
+    }
+
     @media (max-width: 768px) {
+      .app-container {
+        height: 100vh;
+        border-radius: 0;
+      }
       .sidebar {
-        position: absolute;
-        left: -300px;
-        height: 100%;
+        width: 80px;
+        padding: 0.5rem;
       }
-      .sidebar.open {
-        left: 0;
+      .brand-name, .user-profile label, .room-list-header {
+        display: none;
       }
-      .mobile-menu-btn {
-        display: block !important;
+      .message {
+        max-width: 85%;
       }
-    }
-
-    .mobile-menu-btn {
-      display: none;
     }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
   <div class="app-container">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="brand">
-          <i class="fa-solid fa-comments"></i> Sidetalkk
-        </div>
-        <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-      </div>
-
-      <div class="room-section">
-        <div class="section-title">Active Rooms</div>
-        <ul class="room-list" id="roomList">
-          <li class="room-item active" data-room="general"><i class="fa-solid fa-hashtag"></i> general</li>
-          <li class="room-item" data-room="tech-talk"><i class="fa-solid fa-hashtag"></i> tech-talk</li>
-          <li class="room-item" data-room="random"><i class="fa-solid fa-hashtag"></i> random</li>
-        </ul>
-
-        <div class="section-title" style="margin-top: 24px;">Join or Create Room</div>
-        <div class="join-room-box">
-          <input type="text" id="joinRoomInput" class="join-input" placeholder="Room name..." />
-          <button class="btn-action" id="joinRoomBtn">Join</button>
-        </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">S</div>
+        <div class="brand-name">Sidetalkk</div>
       </div>
 
       <div class="user-profile">
-        <div class="avatar" id="userAvatar">U</div>
-        <div class="user-info">
-          <div class="user-name" id="userName">Anonymous User</div>
-          <div class="user-status"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Online</div>
-        </div>
+        <label for="usernameInput">Your Handle</label>
+        <input type="text" id="usernameInput" value="User_1" maxlength="15" />
       </div>
+
+      <div class="room-list-header">Channels</div>
+      <div class="room-item active" data-room="general"># general</div>
+      <div class="room-item" data-room="dev"># developers</div>
+      <div class="room-item" data-room="random"># random</div>
     </aside>
 
-    <!-- Main Chat Interface -->
-    <main class="chat-panel">
+    <!-- Main Chat Window -->
+    <main class="chat-area">
       <header class="chat-header">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-          <div class="chat-title-container">
-            <h2 id="currentRoomTitle"># general</h2>
-            <p id="systemStatus">Storage: Local Demo Mode (Firebase key not detected)</p>
-          </div>
+        <div class="chat-header-info">
+          <h2 id="currentRoomTitle"># general</h2>
+          <p id="onlineStatus">Status: Connected</p>
         </div>
-        <div class="chat-actions">
-          <button class="icon-btn" id="clearChatBtn" title="Clear Room Messages">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        </div>
+        <button id="clearChatBtn" class="clear-btn">Clear Local View</button>
       </header>
 
-      <!-- Message Container -->
-      <section class="messages-container" id="messagesContainer">
-        <!-- Messages will be injected here dynamically -->
-      </section>
+      <div id="messagesContainer" class="messages-container">
+        <!-- Messages render dynamically here -->
+      </div>
 
-      <!-- Chat Input Area -->
       <footer class="input-container">
-        <div class="input-box">
-          <button class="icon-btn" id="attachBtn" title="Attach Image">
-            <i class="fa-solid fa-paperclip"></i>
-          </button>
-          <input type="file" id="fileInput" class="file-input-hidden" accept="image/*" />
-          
-          <textarea id="messageInput" class="chat-textarea" placeholder="Message #general... (Press Enter to send)" rows="1"></textarea>
-          
-          <button class="btn-action" id="sendBtn" style="padding: 8px 12px;">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
-        </div>
+        <input type="text" id="messageInput" class="message-input" placeholder="Type a message into #general..." autocomplete="off" />
+        <button id="sendBtn" class="send-btn">Send</button>
       </footer>
     </main>
   </div>
 
-  <!-- Firebase v10 CDN Scripts (ES Modules) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    // Standard Firebase Config Object (Replace with your Firebase Console credentials to enable multi-device sync)
-    const firebaseConfig = {
-      apiKey: "",
-      authDomain: "",
-      databaseURL: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: ""
+  <script>
+    // System State
+    const state = {
+      username: localStorage.getItem('sidetalkk_user') || 'Guest_' + Math.floor(Math.random() * 1000),
+      currentRoom: 'general',
+      messages: JSON.parse(localStorage.getItem('sidetalkk_msgs')) || []
     };
 
-    // State Management
-    let db = null;
-    let isFirebaseActive = false;
-    let currentRoom = "general";
-    let pendingAttachment = null;
-    
-    // User Identity Logic
-    let userId = localStorage.getItem("sidetalkk_user_id") || "user_" + Math.random().toString(36).substring(2, 9);
-    let userName = localStorage.getItem("sidetalkk_user_name") || "User-" + Math.floor(1000 + Math.random() * 9000);
-    localStorage.setItem("sidetalkk_user_id", userId);
-    localStorage.setItem("sidetalkk_user_name", userName);
+    // DOM Elements
+    const elements = {
+      usernameInput: document.getElementById('usernameInput'),
+      messagesContainer: document.getElementById('messagesContainer'),
+      messageInput: document.getElementById('messageInput'),
+      sendBtn: document.getElementById('sendBtn'),
+      clearChatBtn: document.getElementById('clearChatBtn'),
+      currentRoomTitle: document.getElementById('currentRoomTitle'),
+      roomItems: document.querySelectorAll('.room-item')
+    };
 
-    // Initial Firebase Connection Check
-    if (firebaseConfig.databaseURL && firebaseConfig.apiKey) {
-      try {
-        const app = initializeApp(firebaseConfig);
-        db = getDatabase(app);
-        isFirebaseActive = true;
-        console.log("Sidetalkk: Successfully initialized Firebase Realtime Database.");
-      } catch (err) {
-        console.error("Sidetalkk: Firebase initialization failed. Falling back to LocalStorage.", err);
-      }
-    }
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      elements.usernameInput.value = state.username;
+      setupEventListeners();
+      renderMessages();
+    });
 
-    // DOM Element References
-    let elements = {};
+    // Binding Event Listeners safely
+    function setupEventListeners() {
+      // Send Message Button
+      elements.sendBtn.addEventListener('click', handleSendMessage);
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Bind DOM Elements
-      elements = {
-        themeToggleBtn: document.getElementById("themeToggleBtn"),
-        roomList: document.getElementById("roomList"),
-        joinRoomInput: document.getElementById("joinRoomInput"),
-        joinRoomBtn: document.getElementById("joinRoomBtn"),
-        userAvatar: document.getElementById("userAvatar"),
-        userName: document.getElementById("userName"),
-        currentRoomTitle: document.getElementById("currentRoomTitle"),
-        systemStatus: document.getElementById("systemStatus"),
-        clearChatBtn: document.getElementById("clearChatBtn"),
-        messagesContainer: document.getElementById("messagesContainer"),
-        attachBtn: document.getElementById("attachBtn"),
-        fileInput: document.getElementById("fileInput"),
-        messageInput: document.getElementById("messageInput"),
-        sendBtn: document.getElementById("sendBtn"),
-        mobileMenuBtn: document.getElementById("mobileMenuBtn"),
-        sidebar: document.getElementById("sidebar")
-      };
-
-      // Set Up User Interface Profile
-      elements.userName.textContent = userName;
-      elements.userAvatar.textContent = userName.charAt(0).toUpperCase();
-      if (isFirebaseActive) {
-        elements.systemStatus.textContent = "Mode: Live Firebase Sync Active";
-      }
-
-      // Explicit Event Listener Bindings
-      elements.sendBtn.addEventListener("click", handleSendMessage);
-      elements.messageInput.addEventListener("keydown", handleKeyPress);
-      elements.messageInput.addEventListener("input", autoResizeTextarea);
-      elements.attachBtn.addEventListener("click", () => elements.fileInput.click());
-      elements.fileInput.addEventListener("change", handleFileSelect);
-      elements.themeToggleBtn.addEventListener("click", toggleTheme);
-      elements.joinRoomBtn.addEventListener("click", handleJoinRoom);
-      elements.clearChatBtn.addEventListener("click", handleClearChat);
-      elements.mobileMenuBtn.addEventListener("click", () => elements.sidebar.classList.toggle("open"));
-
-      // Room Selection Delegate
-      elements.roomList.addEventListener("click", (e) => {
-        const target = e.target.closest(".room-item");
-        if (target) {
-          const roomName = target.getAttribute("data-room");
-          switchRoom(roomName, target);
+      // Enter Key Support
+      elements.messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSendMessage();
         }
       });
 
-      // Start Listening to Messages
-      listenToRoomMessages(currentRoom);
-    });
+      // Update Username
+      elements.usernameInput.addEventListener('change', (e) => {
+        const val = e.target.value.trim();
+        if (val) {
+          state.username = val;
+          localStorage.setItem('sidetalkk_user', val);
+        }
+      });
 
-    // Theme Switcher
-    function toggleTheme() {
-      const currentTheme = document.body.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.body.setAttribute("data-theme", newTheme);
-      elements.themeToggleBtn.innerHTML = newTheme === "dark" ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
-    }
-
-    // Text Area Resizing Logic
-    function autoResizeTextarea() {
-      elements.messageInput.style.height = "auto";
-      elements.messageInput.style.height = Math.min(elements.messageInput.scrollHeight, 120) + "px";
-    }
-
-    // Keydown Handler
-    function handleKeyPress(e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSendMessage();
-      }
-    }
-
-    // File Attachment Logic
-    function handleFileSelect(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) { // 2MB restriction for demo stability
-        alert("File size exceeds 2MB limit.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        pendingAttachment = evt.target.result;
-        elements.attachBtn.style.color = "var(--accent)";
-      };
-      reader.readAsDataURL(file);
-    }
-
-    // Send Message Core Logic
-    function handleSendMessage() {
-      const text = elements.messageInput.value.trim();
-
-      if (!text && !pendingAttachment) {
-        console.warn("Sidetalkk: Prevented sending empty message.");
-        return;
-      }
-
-      const messagePayload = {
-        id: "msg_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7),
-        senderId: userId,
-        senderName: userName,
-        text: text,
-        attachment: pendingAttachment || null,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        createdAt: Date.now()
-      };
-
-      if (isFirebaseActive && db) {
-        // Send to Realtime Database
-        push(ref(db, `rooms/${currentRoom}`), messagePayload)
-          .catch(err => console.error("Firebase send failed:", err));
-      } else {
-        // Save to LocalStorage Fallback
-        saveLocalStorageMessage(currentRoom, messagePayload);
-        renderRoomMessagesFromLocalStorage(currentRoom);
-      }
-
-      // Reset Inputs
-      elements.messageInput.value = "";
-      elements.messageInput.style.height = "auto";
-      pendingAttachment = null;
-      elements.fileInput.value = "";
-      elements.attachBtn.style.color = "var(--text-muted)";
-    }
-
-    // Switch Chat Room Context
-    function switchRoom(roomName, elementTarget) {
-      currentRoom = roomName.toLowerCase().replace(/\s+/g, '-');
-      elements.currentRoomTitle.textContent = `# ${currentRoom}`;
-      elements.messageInput.placeholder = `Message #${currentRoom}... (Press Enter to send)`;
-
-      document.querySelectorAll(".room-item").forEach(item => item.classList.remove("active"));
-      if (elementTarget) elementTarget.classList.add("active");
-
-      // Mobile Menu Close
-      elements.sidebar.classList.remove("open");
-
-      listenToRoomMessages(currentRoom);
-    }
-
-    // Create / Join Dynamic Rooms
-    function handleJoinRoom() {
-      const roomInputVal = elements.joinRoomInput.value.trim();
-      if (!roomInputVal) return;
-
-      const formattedRoom = roomInputVal.toLowerCase().replace(/\s+/g, '-');
-
-      // Add to list if not exists
-      let existingItem = document.querySelector(`[data-room="${formattedRoom}"]`);
-      if (!existingItem) {
-        const li = document.createElement("li");
-        li.className = "room-item";
-        li.setAttribute("data-room", formattedRoom);
-        li.innerHTML = `<i class="fa-solid fa-hashtag"></i> ${formattedRoom}`;
-        elements.roomList.appendChild(li);
-        existingItem = li;
-      }
-
-      switchRoom(formattedRoom, existingItem);
-      elements.joinRoomInput.value = "";
-    }
-
-    // Realtime Listening Engine (Firebase OR LocalStorage Driver)
-    function listenToRoomMessages(room) {
-      elements.messagesContainer.innerHTML = "";
-
-      if (isFirebaseActive && db) {
-        const roomRef = ref(db, `rooms/${room}`);
-        onValue(roomRef, (snapshot) => {
-          elements.messagesContainer.innerHTML = "";
-          const data = snapshot.val();
-          if (data) {
-            Object.values(data).forEach(msg => renderSingleMessage(msg));
-          }
-          scrollToBottom();
+      // Channel Switching
+      elements.roomItems.forEach(item => {
+        item.addEventListener('click', () => {
+          elements.roomItems.forEach(r => r.classList.remove('active'));
+          item.classList.add('active');
+          state.currentRoom = item.dataset.room;
+          elements.currentRoomTitle.textContent = `# ${state.currentRoom}`;
+          elements.messageInput.placeholder = `Type a message into #${state.currentRoom}...`;
+          renderMessages();
         });
-      } else {
-        renderRoomMessagesFromLocalStorage(room);
+      });
+
+      // Clear Chat View
+      elements.clearChatBtn.addEventListener('click', () => {
+        if (confirm("Clear local messages in this room?")) {
+          state.messages = state.messages.filter(m => m.room !== state.currentRoom);
+          saveAndRender();
+        }
+      });
+    }
+
+    // Message Logic
+    function handleSendMessage() {
+      const content = elements.messageInput.value.trim();
+      if (!content) return;
+
+      const newMessage = {
+        id: Date.now(),
+        sender: state.username,
+        text: content,
+        room: state.currentRoom,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      state.messages.push(newMessage);
+      elements.messageInput.value = '';
+      saveAndRender();
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('sidetalkk_msgs', JSON.stringify(state.messages));
+      renderMessages();
+    }
+
+    function renderMessages() {
+      elements.messagesContainer.innerHTML = '';
+      const currentRoomMsgs = state.messages.filter(m => m.room === state.currentRoom);
+
+      if (currentRoomMsgs.length === 0) {
+        elements.messagesContainer.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); margin-top: auto; margin-bottom: auto;">
+            <p>No messages in #${state.currentRoom} yet.</p>
+            <p style="font-size: 0.8rem; margin-top: 0.25rem;">Start the conversation!</p>
+          </div>
+        `;
+        return;
       }
-    }
 
-    // LocalStorage Fallback Engine
-    function saveLocalStorageMessage(room, payload) {
-      const storageKey = `sidetalkk_room_${room}`;
-      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      existing.push(payload);
-      localStorage.setItem(storageKey, JSON.stringify(existing));
-    }
+      currentRoomMsgs.forEach(msg => {
+        const isSentByMe = msg.sender === state.username;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
 
-    function renderRoomMessagesFromLocalStorage(room) {
-      elements.messagesContainer.innerHTML = "";
-      const storageKey = `sidetalkk_room_${room}`;
-      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      existing.forEach(msg => renderSingleMessage(msg));
-      scrollToBottom();
-    }
-
-    // Clear Room Messages
-    function handleClearChat() {
-      if (!confirm(`Are you sure you want to clear all messages in #${currentRoom}?`)) return;
-
-      if (isFirebaseActive && db) {
-        remove(ref(db, `rooms/${currentRoom}`))
-          .catch(err => console.error("Firebase clear failed:", err));
-      } else {
-        localStorage.removeItem(`sidetalkk_room_${currentRoom}`);
-        renderRoomMessagesFromLocalStorage(currentRoom);
-      }
-    }
-
-    // DOM Message Rendering
-    function renderSingleMessage(msg) {
-      const isSent = msg.senderId === userId;
-      
-      const messageWrapper = document.createElement("div");
-      messageWrapper.className = `message-wrapper ${isSent ? 'sent' : 'received'}`;
-
-      const avatarLetter = (msg.senderName || "U").charAt(0).toUpperCase();
-
-      messageWrapper.innerHTML = `
-        <div class="avatar">${avatarLetter}</div>
-        <div class="message-content">
-          <div class="message-header">
-            <span>${escapeHTML(msg.senderName)}</span>
+        msgDiv.innerHTML = `
+          <div class="message-meta">
+            <span>${msg.sender}</span>
+            <span>•</span>
             <span>${msg.timestamp}</span>
           </div>
-          <div class="message-bubble">
-            ${escapeHTML(msg.text)}
-            ${msg.attachment ? `<img src="${msg.attachment}" class="message-attachment" alt="Attachment" />` : ''}
-          </div>
-        </div>
-      `;
+          <div class="message-bubble">${escapeHTML(msg.text)}</div>
+        `;
 
-      elements.messagesContainer.appendChild(messageWrapper);
-    }
+        elements.messagesContainer.appendChild(msgDiv);
+      });
 
-    // Auto Scroll Utility
-    function scrollToBottom() {
+      // Auto-scroll to bottom
       elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
     }
 
-    // Security HTML Sanitizer Utility
+    // Security Helper: Prevent HTML Injection
     function escapeHTML(str) {
-      if (!str) return "";
       return str.replace(/[&<>'"]/g, 
         tag => ({
           '&': '&amp;',
