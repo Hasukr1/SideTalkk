@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sidetalkk — Simple & Clean Live Chat</title>
+  <title>SideTalk — Simple & Clean Live Chat</title>
   <style>
     :root {
+      /* Light Mode Variables */
       --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
       --card-bg: #ffffff;
       --text-main: #1e293b;
@@ -17,6 +18,23 @@
       --msg-received: #f1f5f9;
       --msg-received-text: #0f172a;
       --border: #e2e8f0;
+      --header-bg: rgba(255, 255, 255, 0.9);
+      --toolbar-bg: #f8fafc;
+      --input-bg: #ffffff;
+    }
+
+    /* Dark Mode Variables */
+    [data-theme="dark"] {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --msg-received: #334155;
+      --msg-received-text: #f8fafc;
+      --border: #334155;
+      --header-bg: rgba(30, 41, 59, 0.9);
+      --toolbar-bg: #0f172a;
+      --input-bg: #1e293b;
     }
 
     * {
@@ -34,6 +52,7 @@
       justify-content: center;
       align-items: center;
       padding: 1rem;
+      transition: background 0.3s ease;
     }
 
     /* Floating Chat Shell */
@@ -47,8 +66,9 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--border);
       position: relative;
+      transition: background 0.3s ease, border 0.3s ease;
     }
 
     /* Header */
@@ -58,8 +78,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--header-bg);
       backdrop-filter: blur(10px);
+      transition: background 0.3s ease, border 0.3s ease;
     }
 
     .brand-title {
@@ -68,6 +89,12 @@
       background: linear-gradient(90deg, #6366f1, #a855f7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
     .user-tag {
@@ -80,7 +107,7 @@
 
     .user-tag input {
       border: none;
-      background: #f1f5f9;
+      background: var(--msg-received);
       padding: 0.3rem 0.6rem;
       border-radius: 8px;
       font-weight: 600;
@@ -134,6 +161,7 @@
       font-size: 0.95rem;
       line-height: 1.4;
       word-break: break-word;
+      cursor: pointer;
     }
 
     .message.sent .message-bubble {
@@ -155,14 +183,30 @@
       margin-top: 0.3rem;
     }
 
+    .seen-status {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      padding: 0 0.4rem;
+      font-style: italic;
+    }
+
     /* Toolbar for Emojis & GIFs */
     .quick-toolbar {
       padding: 0.4rem 1rem;
       display: flex;
-      gap: 0.5rem;
-      background: #f8fafc;
+      gap: 0.3rem;
+      background: var(--toolbar-bg);
       border-top: 1px solid var(--border);
       align-items: center;
+      transition: background 0.3s ease;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    /* Hide scrollbar for cleaner look */
+    .quick-toolbar::-webkit-scrollbar {
+      display: none;
     }
 
     .tool-btn {
@@ -170,13 +214,14 @@
       border: none;
       font-size: 1.1rem;
       cursor: pointer;
-      padding: 0.2rem 0.5rem;
+      padding: 0.2rem 0.4rem;
       border-radius: 6px;
       transition: background 0.2s;
+      color: var(--text-main);
     }
 
     .tool-btn:hover {
-      background: #e2e8f0;
+      background: var(--msg-received);
     }
 
     /* Input Controls */
@@ -184,17 +229,20 @@
       padding: 0.8rem 1rem 1rem 1rem;
       display: flex;
       gap: 0.6rem;
-      background: #f8fafc;
+      background: var(--toolbar-bg);
+      transition: background 0.3s ease;
     }
 
     .chat-input {
       flex: 1;
+      background: var(--input-bg);
+      color: var(--text-main);
       border: 1px solid var(--border);
       padding: 0.75rem 1rem;
       border-radius: 14px;
       outline: none;
       font-size: 0.95rem;
-      transition: border 0.2s;
+      transition: border 0.2s, background 0.3s ease, color 0.3s ease;
     }
 
     .chat-input:focus {
@@ -223,21 +271,38 @@
       bottom: 70px;
       left: 1rem;
       right: 1rem;
-      background: white;
+      background: var(--card-bg);
       border-radius: 16px;
       border: 1px solid var(--border);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       padding: 1rem;
       z-index: 100;
+    }
+
+    .gif-custom-link {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .gif-custom-link input {
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      border-radius: 8px;
+    }
+
+    .gif-custom-link button {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      border-radius: 8px;
     }
 
     .gif-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
-      margin-top: 0.5rem;
     }
 
     .gif-grid img {
@@ -259,29 +324,48 @@
   <div class="chat-app">
     <!-- Header -->
     <header class="chat-header">
-      <div class="brand-title">Sidetalkk</div>
-      <div class="user-tag">
-        <span>You:</span>
-        <input type="text" id="usernameInput" value="Alex" maxlength="12" />
+      <div class="brand-title">SideTalk</div>
+      <div class="header-actions">
+        <div class="user-tag">
+          <span>You:</span>
+          <input type="text" id="usernameInput" value="Alex" maxlength="12" />
+        </div>
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" class="tool-btn" title="Toggle Theme">🌓</button>
       </div>
     </header>
 
     <!-- Message Area -->
     <div id="messagesContainer" class="messages-container"></div>
 
-    <!-- Quick Tool Bar (Emoji & GIF toggle) -->
+    <!-- Quick Tool Bar with Expanded Emojis -->
     <div class="quick-toolbar">
       <button class="tool-btn" data-emoji="😊">😊</button>
       <button class="tool-btn" data-emoji="😂">😂</button>
+      <button class="tool-btn" data-emoji="😭">😭</button>
+      <button class="tool-btn" data-emoji="💀">💀</button>
       <button class="tool-btn" data-emoji="🔥">🔥</button>
       <button class="tool-btn" data-emoji="👍">👍</button>
       <button class="tool-btn" data-emoji="❤️">❤️</button>
-      <button id="gifToggleBtn" class="tool-btn" style="font-size:0.85rem; font-weight:bold; background:#e0e7ff; color:#4f46e5;">GIF</button>
+      <button class="tool-btn" data-emoji="✨">✨</button>
+      <button class="tool-btn" data-emoji="👀">👀</button>
+      <button class="tool-btn" data-emoji="🎉">🎉</button>
+      <button class="tool-btn" data-emoji="🤔">🤔</button>
+      <button class="tool-btn" data-emoji="😅">😅</button>
+      <button class="tool-btn" data-emoji="💯">💯</button>
+      <button id="gifToggleBtn" class="tool-btn" style="font-size:0.85rem; font-weight:bold; background:var(--accent); color:white; padding:0.3rem 0.6rem; margin-left: auto;">GIF</button>
     </div>
 
     <!-- GIF Selection Popup -->
     <div id="gifModal" class="gif-modal">
-      <div style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-bottom:0.4rem;">Select a GIF</div>
+      <div style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-bottom:0.4rem;">Paste an Image/GIF Link or Pick Below</div>
+      
+      <!-- Custom GIF Link Input -->
+      <div class="gif-custom-link">
+        <input type="text" id="gifLinkInput" class="chat-input" placeholder="Paste image/GIF URL..." autocomplete="off">
+        <button id="sendGifLinkBtn" class="send-btn">Send</button>
+      </div>
+
       <div class="gif-grid" id="gifGrid"></div>
     </div>
 
@@ -296,9 +380,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // Your web app's Firebase configuration
+    // Firebase configuration (Left completely untouched so your backend keeps working)
     const firebaseConfig = {
       apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
       authDomain: "sidetalkk.firebaseapp.com",
@@ -307,25 +391,36 @@
       messagingSenderId: "585493665739",
       appId: "1:585493665739:web:e4b00ea7117e71fcb2084e",
       measurementId: "G-6SYMK7PYGY",
-      databaseURL: "https://sidetalkk-default-rtdb.firebaseio.com" // Standard RTDB URL
+      databaseURL: "https://sidetalkk-default-rtdb.firebaseio.com"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
 
-    // Preset GIFs
+    // Expanded Preset GIFs Library
     const presetGIFs = [
       "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3A5MHFvZzN2ZjB1dDJzbHN4ZmprZjBiaThseXlyM3Y1bWV0dDNwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2F3OWEydmtzcWwxeHdyOHBrcmRxbTJ4d3Rwc2Q1eWZpbnFid2dpZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3q2K5jinAlChoCLS/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThmZWExOWp2b2kxaHFzc3A4NnJqZXdtbWpqcTF4cnYyazBycjU3eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT0xezQGU5xCDJuCPe/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcm5md2tjdXB0czIwbXdpb3ZrcXJscTVtbnNiaXZhbjJtdTJyNDR1MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsjLuLXS26CD6w/giphy.gif"
+      "https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif",
+      "https://media.giphy.com/media/xT0xezQGU5xCDJuCPe/giphy.gif",
+      "https://media.giphy.com/media/3o7TKsjLuLXS26CD6w/giphy.gif",
+      "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif",
+      "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
+      "https://media.giphy.com/media/YRtLgsajXrz1FNJ6oy/giphy.gif",
+      "https://media.giphy.com/media/3o6Zt4HU9uwXmXSAuI/giphy.gif",
+      "https://media.giphy.com/media/L0qTl8hl84EDly62J1/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/B0vFTrb0ZGDf2/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/fDO2Nm0RDUtXhsycr8/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/111ebonMs90YLu/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGxzbnVwMWd2NjhpZmxhYXR1dHA3bWFocG81bXZtbHFtbWFrcnhlYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5VKbvrjvwVcj6/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGI3cW1yd3Roc3V4cnYydzBwMDIxeG1nczB0cm0zbHB4YzByZjZqdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/4ilFRqgbzbx4c/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHBpY2psZmhhZGxrbTVsc2FtdjN6ODltaGtkYng1aHFvYTh4cHVtYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7aD2saalEvTehRO0/giphy.gif"
     ];
 
     const state = {
-      user: localStorage.getItem('sidetalkk_user') || 'Alex',
+      user: localStorage.getItem('sidetalk_user') || 'User_' + Math.floor(Math.random() * 100),
+      theme: localStorage.getItem('sidetalk_theme') || 'light',
       messages: []
     };
 
@@ -336,21 +431,34 @@
       sendBtn: document.getElementById('sendBtn'),
       gifToggleBtn: document.getElementById('gifToggleBtn'),
       gifModal: document.getElementById('gifModal'),
-      gifGrid: document.getElementById('gifGrid')
+      gifGrid: document.getElementById('gifGrid'),
+      gifLinkInput: document.getElementById('gifLinkInput'),
+      sendGifLinkBtn: document.getElementById('sendGifLinkBtn'),
+      themeToggleBtn: document.getElementById('themeToggleBtn')
     };
 
     document.addEventListener('DOMContentLoaded', () => {
       elements.usernameInput.value = state.user;
+      
+      // Apply saved theme on load
+      document.body.setAttribute('data-theme', state.theme);
+
       setupListeners();
       loadGIFs();
       listenForFirebaseMessages();
     });
 
     function setupListeners() {
-      // Send message
-      elements.sendBtn.addEventListener('click', () => sendTextMessage());
+      // Theme Toggle Logic
+      elements.themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        localStorage.setItem('sidetalk_theme', newTheme);
+      });
 
-      // Enter Key
+      // Send Text Message
+      elements.sendBtn.addEventListener('click', () => sendTextMessage());
       elements.messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -358,13 +466,13 @@
         }
       });
 
-      // User name edit
+      // User name changes
       elements.usernameInput.addEventListener('change', (e) => {
-        state.user = e.target.value.trim() || 'Alex';
-        localStorage.setItem('sidetalkk_user', state.user);
+        state.user = e.target.value.trim() || 'User_' + Math.floor(Math.random() * 100);
+        localStorage.setItem('sidetalk_user', state.user);
       });
 
-      // Quick Emojis
+      // Quick Emoji insertion
       document.querySelectorAll('.tool-btn[data-emoji]').forEach(btn => {
         btn.addEventListener('click', () => {
           elements.messageInput.value += btn.dataset.emoji;
@@ -372,10 +480,20 @@
         });
       });
 
-      // Toggle GIF modal
+      // Toggle GIF Menu
       elements.gifToggleBtn.addEventListener('click', () => {
         const isVisible = elements.gifModal.style.display === 'block';
         elements.gifModal.style.display = isVisible ? 'none' : 'block';
+      });
+
+      // Send Custom GIF Link
+      elements.sendGifLinkBtn.addEventListener('click', () => {
+        const url = elements.gifLinkInput.value.trim();
+        if (url) {
+          sendGIFMessage(url);
+          elements.gifLinkInput.value = '';
+          elements.gifModal.style.display = 'none';
+        }
       });
     }
 
@@ -404,19 +522,21 @@
       pushMessageToFirebase({ url: url, type: 'gif' });
     }
 
-    // Push live message to Firebase Realtime Database
     function pushMessageToFirebase(payload) {
       const msg = {
         sender: state.user,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAt: Date.now(),
+        seenBy: [state.user],
         ...payload
       };
 
-      push(messagesRef, msg);
+      push(messagesRef, msg).catch((error) => {
+        alert("Failed to send! Firebase Error: " + error.message);
+        console.error(error);
+      });
     }
 
-    // Listen for incoming live Firebase messages
     function listenForFirebaseMessages() {
       onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
@@ -424,14 +544,30 @@
         
         if (data) {
           Object.keys(data).forEach(key => {
-            state.messages.push(data[key]);
+            const msgObj = { id: key, ...data[key] };
+            state.messages.push(msgObj);
+            
+            // Handle Seen Status
+            const seenList = msgObj.seenBy || [];
+            if (!seenList.includes(state.user)) {
+              markMessageAsSeen(key, seenList);
+            }
           });
-          // Sort by time created
+
           state.messages.sort((a, b) => a.createdAt - b.createdAt);
         }
         
         renderMessages();
+      }, (error) => {
+        alert("Failed to load messages! Firebase Error: " + error.message);
+        console.error(error);
       });
+    }
+
+    function markMessageAsSeen(msgId, currentSeenList) {
+      const updatedSeen = [...currentSeenList, state.user];
+      const msgDbRef = ref(db, `messages/${msgId}`);
+      update(msgDbRef, { seenBy: updatedSeen });
     }
 
     function renderMessages() {
@@ -444,15 +580,37 @@
 
         let contentHTML = '';
         if (msg.type === 'gif') {
-          contentHTML = `<img src="${msg.url}" class="gif-img" alt="GIF" />`;
+          contentHTML = `<img src="${msg.url}" class="gif-img" alt="GIF/Image" />`;
         } else {
           contentHTML = escapeHTML(msg.text);
         }
 
+        const seenList = msg.seenBy || [];
+        const seenByOthers = seenList.filter(u => u !== msg.sender);
+        
+        let seenHTML = '';
+        if (isMe && seenByOthers.length > 0) {
+          seenHTML = `<div class="seen-status">Seen by ${seenByOthers.join(', ')}</div>`;
+        }
+
         msgDiv.innerHTML = `
           <div class="message-info">${msg.sender} • ${msg.timestamp}</div>
-          <div class="message-bubble">${contentHTML}</div>
+          <div class="message-bubble" title="Double-click to copy message">${contentHTML}</div>
+          ${seenHTML}
         `;
+
+        // Add double-click to copy functionality for text messages
+        if (msg.type === 'text') {
+          const bubble = msgDiv.querySelector('.message-bubble');
+          bubble.addEventListener('dblclick', () => {
+            navigator.clipboard.writeText(msg.text).then(() => {
+              // Quick visual feedback
+              const originalColor = bubble.style.backgroundColor;
+              bubble.style.backgroundColor = '#10b981'; // Green flash
+              setTimeout(() => bubble.style.backgroundColor = originalColor, 300);
+            });
+          });
+        }
 
         elements.messagesContainer.appendChild(msgDiv);
       });
