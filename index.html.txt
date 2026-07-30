@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultra Chat</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(23, 32, 54, 0.7);
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
+      --sent: #4f46e5;
+      --recv: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    body {
+      background: radial-gradient(circle at top left, #1e1b4b, #0b0f19 60%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .chat-card {
+      width: 100%;
+      max-width: 800px;
+      height: 88vh;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      padding: 16px 24px;
+      background: rgba(11, 15, 25, 0.5);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+    .brand h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    /* Messages Box */
+    .messages-container {
+      flex: 1;
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .msg-group {
+      display: flex;
+      gap: 12px;
+      max-width: 75%;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-group.sent { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+
+    .msg-body { display: flex; flex-direction: column; gap: 4px; }
+    .sent .msg-body { align-items: flex-end; }
+
+    .msg-meta { font-size: 0.75rem; color: var(--subtext); display: flex; gap: 8px; }
+
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .received .bubble { background: var(--recv); border-top-left-radius: 2px; border: 1px solid var(--border); }
+    .sent .bubble { background: var(--sent); border-top-right-radius: 2px; color: #fff; }
+
+    .bubble img { max-width: 100%; max-height: 250px; border-radius: 10px; margin-top: 6px; display: block; }
+
+    /* Footer / Input */
+    .footer {
+      padding: 16px 24px;
+      background: rgba(11, 15, 25, 0.5);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 18px;
+      border-radius: 12px;
+      outline: none;
+      font-size: 0.95rem;
+      transition: 0.2s;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+
+    .btn-send {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-send:hover { background: var(--accent-hover); }
+  </style>
+</head>
+<body>
+
+  <div class="chat-card">
+    <div class="header">
+      <div class="brand">
+        <div class="status-dot"></div>
+        <h2>UltraChat Live</h2>
+      </div>
+      <div class="user-profile">
+        <span id="usernameDisplay">Anon</span>
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix" id="myAvatar" class="avatar-btn" title="Click to change name/avatar">
+      </div>
+    </div>
+
+    <div class="messages-container" id="chatBox">
+      <!-- Live Messages Spawn Here -->
+    </div>
+
+    <form class="footer" id="chatForm">
+      <input type="text" id="msgInput" class="chat-input" placeholder="Type a message or paste an image link..." autocomplete="off">
+      <button type="submit" class="btn-send">Send</button>
+    </form>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // PASTE YOUR FIREBASE CONFIG HERE IN STEP 2
+    const firebaseConfig = {
+      databaseURL: "https://YOUR-DATABASE-NAME-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, 'messages');
+
+    let username = localStorage.getItem('uc_user') || 'User_' + Math.floor(Math.random() * 1000);
+    let avatarSeed = localStorage.getItem('uc_seed') || username;
+
+    document.getElementById('usernameDisplay').innerText = username;
+    document.getElementById('myAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}`;
+
+    // Click Avatar to change Name
+    document.getElementById('myAvatar').onclick = () => {
+      const newName = prompt("Enter your new display name:", username);
+      if (newName) {
+        username = newName;
+        avatarSeed = newName;
+        localStorage.setItem('uc_user', username);
+        localStorage.setItem('uc_seed', avatarSeed);
+        document.getElementById('usernameDisplay').innerText = username;
+        document.getElementById('myAvatar').src = `https://api.dicebear.com/7.x/bottts/svg?seed=${avatarSeed}`;
+      }
+    };
+
+    // Send Message
+    document.getElementById('chatForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      push(messagesRef, {
+        user: username,
+        seed: avatarSeed,
+        text: text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      input.value = '';
+    });
+
+    // Listen for incoming messages live
+    onChildAdded(messagesRef, (snapshot) => {
+      const data = snapshot.val();
+      const isMe = data.user === username;
+
+      const isImage = data.text.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null || data.text.startsWith('data:image/');
+
+      const msgHTML = `
+        <div class="msg-group ${isMe ? 'sent' : 'received'}">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${data.seed}" class="msg-avatar">
+          <div class="msg-body">
+            <div class="msg-meta">
+              <span>${data.user}</span>
+              <span>${data.time}</span>
+            </div>
+            <div class="bubble">
+              ${isImage ? `<img src="${data.text}">` : data.text}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const chatBox = document.getElementById('chatBox');
+      chatBox.insertAdjacentHTML('beforeend', msgHTML);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  </script>
+</body>
+</html>
