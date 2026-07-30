@@ -93,20 +93,22 @@
 
     .auth-switch-container {
       text-align: center;
+      margin-top: 8px;
     }
 
-    .auth-switch {
+    .auth-switch-btn {
+      background: none;
+      border: none;
       font-size: 0.85rem;
       color: var(--subtext);
       cursor: pointer;
-      display: inline-block;
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 6px;
-      user-select: none;
       transition: color 0.2s ease, background-color 0.2s ease;
+      width: 100%;
     }
 
-    .auth-switch:hover {
+    .auth-switch-btn:hover {
       text-decoration: underline;
       color: var(--text);
       background-color: rgba(255, 255, 255, 0.05);
@@ -269,26 +271,26 @@
     <!-- LOGIN BOX -->
     <div class="auth-box" id="loginBox">
       <h2>SideTalkk Login</h2>
-      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+      <form class="auth-form" id="loginForm">
         <input type="text" id="loginUser" class="auth-input" placeholder="Username" required autocomplete="username">
         <input type="password" id="loginPass" class="auth-input" placeholder="Password" required autocomplete="current-password">
         <button type="submit" class="btn" id="btnLogin">Log In</button>
       </form>
       <div class="auth-switch-container">
-        <span class="auth-switch" onclick="toggleAuth('register')">Don't have an account? Register</span>
+        <button type="button" class="auth-switch-btn" id="toRegisterBtn">Don't have an account? Register</button>
       </div>
     </div>
 
     <!-- REGISTER BOX -->
     <div class="auth-box" id="regBox" style="display: none;">
       <h2>Register</h2>
-      <form class="auth-form" id="regForm" onsubmit="handleRegister(event)">
+      <form class="auth-form" id="regForm">
         <input type="text" id="regUser" class="auth-input" placeholder="Username" required autocomplete="username">
         <input type="password" id="regPass" class="auth-input" placeholder="Password" required autocomplete="new-password">
         <button type="submit" class="btn" id="btnReg">Create Account</button>
       </form>
       <div class="auth-switch-container">
-        <span class="auth-switch" onclick="toggleAuth('login')">Already have an account? Log In</span>
+        <button type="button" class="auth-switch-btn" id="toLoginBtn">Already have an account? Log In</button>
       </div>
     </div>
 
@@ -342,26 +344,25 @@
       listenRealtime();
     }
 
-    // AUTH SWITCH TOGGLE FIX
-    function toggleAuth(mode) {
-      const loginBox = document.getElementById('loginBox');
-      const regBox = document.getElementById('regBox');
+    // DIRECT EVENT LISTENERS FOR MENU SWITCHING
+    document.getElementById('toRegisterBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('regBox').style.display = 'flex';
+    });
 
-      if (mode === 'register') {
-        loginBox.style.setProperty('display', 'none', 'important');
-        regBox.style.setProperty('display', 'flex', 'important');
-      } else {
-        regBox.style.setProperty('display', 'none', 'important');
-        loginBox.style.setProperty('display', 'flex', 'important');
-      }
-    }
+    document.getElementById('toLoginBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('regBox').style.display = 'none';
+      document.getElementById('loginBox').style.display = 'flex';
+    });
 
     function hash(text) {
       return CryptoJS.SHA256(text).toString();
     }
 
     // REGISTER ACCOUNT
-    async function handleRegister(e) {
+    document.getElementById('regForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
@@ -377,10 +378,10 @@
         alert("Account created!");
         loginUser(user);
       }
-    }
+    });
 
     // LOGIN ACCOUNT
-    async function handleLogin(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
@@ -397,7 +398,7 @@
       } else {
         alert("User does not exist!");
       }
-    }
+    });
 
     function loginUser(user) {
       currentUser = user;
