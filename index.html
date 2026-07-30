@@ -328,6 +328,28 @@
       display: block;
     }
 
+    .file-attachment {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+    
+    .message.sent .file-attachment {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .file-attachment a {
+      color: inherit;
+      font-weight: bold;
+      text-decoration: underline;
+      margin-left: auto;
+    }
+
     /* Reaction Pills */
     .message-reactions {
       display: flex;
@@ -450,7 +472,7 @@
       align-items: center;
     }
 
-    .input-row input {
+    .input-row input[type="text"] {
       flex: 1;
       padding: 12px 16px;
       border-radius: 10px;
@@ -462,7 +484,7 @@
       transition: border-color 0.2s;
     }
 
-    .input-row input:focus {
+    .input-row input[type="text"]:focus {
       border-color: var(--primary-color);
     }
 
@@ -690,7 +712,11 @@
       </div>
 
       <div class="input-row">
-        <input type="text" id="messageInput" placeholder="Type a message..." autocomplete="off" />
+        <!-- New File Attachment Buttons -->
+        <input type="file" id="fileInput" style="display: none;" />
+        <button id="attachmentBtn" class="tool-btn" title="Attach a file" style="padding: 12px;">📎</button>
+        
+        <input type="text" id="messageInput" placeholder="Type a message or use a /command..." autocomplete="off" />
         <button id="sendBtn" class="send-btn">Send</button>
       </div>
     </div>
@@ -700,7 +726,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-    import { getDatabase, ref, push, onValue, get, set, remove, onDisconnect, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    import { getDatabase, ref as dbRef, push, onValue, get, set, remove, onDisconnect, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    
+    // NEW IMPORTS FOR FILE STORAGE
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
 
     const DEFAULT_AVATAR = "https://png.pngtree.com/png-vector/20250512/ourmid/pngtree-default-avatar-profile-icon-gray-placeholder-vector-png-image_16213764.png";
 
@@ -718,8 +747,9 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
-    const messagesRef = ref(db, 'messages');
-    const usersRef = ref(db, 'users');
+    const storage = getStorage(app); // Initialize Storage
+    const messagesRef = dbRef(db, 'messages');
+    const usersRef = dbRef(db, 'users');
 
     const blockedWords = [
       "fuck", "shit", "bitch", "asshole", "cunt", "nigger", "nigga", 
@@ -741,17 +771,7 @@
       "https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif",
       "https://media.giphy.com/media/xT0xezQGU5xCDJuCPe/giphy.gif",
       "https://media.giphy.com/media/3o7TKsjLuLXS26CD6w/giphy.gif",
-      "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif",
-      "https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif",
-      "https://media.giphy.com/media/YRtLgsajXrz1FNJ6oy/giphy.gif",
-      "https://media.giphy.com/media/3o6Zt4HU9uwXmXSAuI/giphy.gif",
-      "https://media.giphy.com/media/L0qTl8hl84EDly62J1/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/B0vFTrb0ZGDf2/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/fDO2Nm0RDUtXhsycr8/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2bTFnOThxNjEydGZ6NjFxdnh6YzY2aXBseTN2aGJrcnp3cnhpMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/111ebonMs90YLu/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGxzbnVwMWd2NjhpZmxhYXR1dHA3bWFocG81bXZtbHFtbWFrcnhlYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5VKbvrjvwVcj6/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGI3cW1yd3Roc3V4cnYydzBwMDIxeG1nczB0cm0zbHB4YzByZjZqdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/4ilFRqgbzbx4c/giphy.gif",
-      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHBpY2psZmhhZGxrbTVsc2FtdjN6ODltaGtkYng1aHFvYTh4cHVtYyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7aD2saalEvTehRO0/giphy.gif"
+      "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif"
     ];
 
     const state = {
@@ -785,7 +805,9 @@
       previewText: document.getElementById('previewText'),
       cancelPreviewBtn: document.getElementById('cancelPreviewBtn'),
       emojiPickerToggleBtn: document.getElementById('emojiPickerToggleBtn'),
-      emojiPickerModal: document.getElementById('emojiPickerModal')
+      emojiPickerModal: document.getElementById('emojiPickerModal'),
+      fileInput: document.getElementById('fileInput'),
+      attachmentBtn: document.getElementById('attachmentBtn')
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -823,6 +845,13 @@
           handleMainAction();
         }
       });
+
+      // FILE UPLOAD LISTENERS
+      elements.attachmentBtn.addEventListener('click', () => {
+        elements.fileInput.click();
+      });
+
+      elements.fileInput.addEventListener('change', handleFileUpload);
 
       document.querySelectorAll('.quick-toolbar .tool-btn[data-emoji]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -894,7 +923,7 @@
       }
 
       try {
-        const userRef = ref(db, 'users/' + name);
+        const userRef = dbRef(db, 'users/' + name);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           alert("This username is already taken by someone online! Please choose a different nickname.");
@@ -921,7 +950,7 @@
       elements.displayUserTag.textContent = username;
 
       try {
-        const userRef = ref(db, 'users/' + username);
+        const userRef = dbRef(db, 'users/' + username);
         await set(userRef, { 
           online: true, 
           lastLogin: Date.now(),
@@ -981,6 +1010,7 @@
       elements.previewBar.style.display = 'none';
     }
 
+    // MAIN ACTION HANDLER - COMMANDS INTERCEPTED HERE
     function handleMainAction() {
       const text = elements.messageInput.value.trim();
       if (!text) return;
@@ -990,8 +1020,17 @@
         return;
       }
 
+      // Check if it's a command
+      if (text.startsWith("/")) {
+        handleSlashCommand(text);       
+        elements.messageInput.value = ''; 
+        clearActiveState();
+        return;                         
+      }
+
+      // Normal Message Execution
       if (state.editingMsgId) {
-        const msgRef = ref(db, `messages/${state.editingMsgId}`);
+        const msgRef = dbRef(db, `messages/${state.editingMsgId}`);
         update(msgRef, { text: text, edited: true }).then(() => {
           clearActiveState();
         }).catch(err => {
@@ -1004,6 +1043,95 @@
         }
         pushMessageToFirebase(payload);
         elements.messageInput.value = '';
+        clearActiveState();
+      }
+    }
+
+    // COMMAND PROCESSOR
+    function handleSlashCommand(text) {
+      const args = text.split(" ");
+      const command = args[0].toLowerCase();
+
+      switch (command) {
+        case "/delete":
+          const targetUser = args[1];
+          if (targetUser) {
+            deleteUserMessages(targetUser);
+          } else {
+            alert("Error: Please specify a username (e.g., /delete player1).");
+          }
+          break;
+          
+        case "/announce":
+          const announcement = args.slice(1).join(" ");
+          pushMessageToFirebase({
+            text: `📢 ANNOUNCEMENT: ${announcement}`,
+            type: "system"
+          }, "SYSTEM_ADMIN"); // Overriding sender
+          break;
+
+        case "/clear":
+          if (confirm("WARNING: This will delete ALL messages for everyone. Are you sure?")) {
+             remove(messagesRef).catch(err => alert("Failed to clear chat: " + err.message));
+          }
+          break;
+
+        default:
+          alert("Unknown command. Try /delete, /announce, or /clear.");
+      }
+    }
+
+    // DATABASE DELETE USER FUNCTION
+    async function deleteUserMessages(targetUsername) {
+      const userMessagesQuery = query(messagesRef, orderByChild("sender"), equalTo(targetUsername));
+      
+      try {
+        const snapshot = await get(userMessagesQuery);
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => {
+            remove(childSnapshot.ref); 
+          });
+          alert(`Successfully deleted all messages from ${targetUsername}`);
+        } else {
+          alert(`No messages found for the user: ${targetUsername}`);
+        }
+      } catch (error) {
+        console.error("Error deleting user messages:", error);
+        alert("An error occurred while deleting messages.");
+      }
+    }
+
+    // FILE UPLOAD FUNCTION TO STORAGE
+    async function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileStorageRef = storageRef(storage, `chat_uploads/${Date.now()}_${file.name}`);
+      
+      try {
+        elements.messageInput.placeholder = "Uploading file... please wait";
+        elements.messageInput.disabled = true;
+        
+        const snapshot = await uploadBytes(fileStorageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        
+        const payload = { 
+          text: `📎 Shared a file: ${file.name}`, 
+          type: 'file',
+          fileUrl: downloadURL,
+          fileName: file.name
+        };
+        
+        if (state.replyingTo) payload.replyTo = state.replyingTo;
+        
+        pushMessageToFirebase(payload);
+        
+      } catch (error) {
+        alert("File upload failed: " + error.message);
+      } finally {
+        elements.fileInput.value = ''; // Reset input
+        elements.messageInput.placeholder = "Type a message or use a /command...";
+        elements.messageInput.disabled = false;
         clearActiveState();
       }
     }
@@ -1022,11 +1150,11 @@
       clearActiveState();
     }
 
-    function pushMessageToFirebase(payload) {
+    function pushMessageToFirebase(payload, overrideSender = null) {
       const msg = {
-        sender: state.user,
-        avatar: state.avatar,
-        bio: state.bio,
+        sender: overrideSender || state.user,
+        avatar: overrideSender ? "https://cdn-icons-png.flaticon.com/512/616/616430.png" : state.avatar,
+        bio: overrideSender ? "Server Administration System" : state.bio,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAt: Date.now(),
         ...payload
@@ -1040,7 +1168,7 @@
 
     function deleteForEveryone(msgId) {
       if (confirm("Delete this message for everyone?")) {
-        remove(ref(db, `messages/${msgId}`)).catch(err => {
+        remove(dbRef(db, `messages/${msgId}`)).catch(err => {
           alert("Failed to delete message: " + err.message);
         });
       }
@@ -1053,7 +1181,7 @@
     }
 
     function toggleReaction(msgId, emoji) {
-      const reactionsRef = ref(db, `messages/${msgId}/reactions`);
+      const reactionsRef = dbRef(db, `messages/${msgId}/reactions`);
       get(reactionsRef).then((snapshot) => {
         let reactions = snapshot.exists() ? snapshot.val() : {};
         if (!reactions[emoji]) {
@@ -1125,8 +1253,9 @@
         if (state.deletedForMe.includes(msg.id)) return;
 
         const isMe = msg.sender === state.user;
+        const isSystem = msg.type === 'system';
         const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+        msgDiv.className = `message ${isMe ? 'sent' : 'received'} ${isSystem ? 'system-msg' : ''}`;
 
         const userAvatar = msg.avatar || DEFAULT_AVATAR;
         const userBio = msg.bio || "Exploring SideTalk community room!";
@@ -1143,13 +1272,22 @@
         let contentHTML = '';
         if (msg.type === 'gif') {
           contentHTML = `<img src="${msg.url}" class="gif-img" alt="GIF/Image" />`;
+        } else if (msg.type === 'file') {
+          contentHTML = `
+            <div class="file-attachment">
+              <span>📎 ${escapeHTML(msg.fileName)}</span>
+              <a href="${msg.fileUrl}" target="_blank" download>Download</a>
+            </div>
+          `;
+        } else if (isSystem) {
+          contentHTML = `<strong style="color: #ef4444; font-size: 16px;">${escapeHTML(msg.text)}</strong>`;
         } else {
           const editedLabel = msg.edited ? `<span class="edited-tag">(edited)</span>` : '';
           contentHTML = `${escapeHTML(msg.text)}${editedLabel}`;
         }
 
         let reactionsHTML = '';
-        if (msg.reactions) {
+        if (msg.reactions && !isSystem) {
           reactionsHTML = '<div class="message-reactions">';
           Object.keys(msg.reactions).forEach(emoji => {
             const usersObj = msg.reactions[emoji];
@@ -1171,23 +1309,27 @@
             <button class="delete-everyone-btn danger">Delete for everyone</button>
             <button class="delete-me-btn">Delete for me</button>
           `;
-        } else if (isMe && msg.type === 'gif') {
+        } else if (isMe && (msg.type === 'gif' || msg.type === 'file')) {
           optionsButtonsHTML = `
             <button class="delete-everyone-btn danger">Delete for everyone</button>
             <button class="delete-me-btn">Delete for me</button>
           `;
         }
 
+        const actionsTriggerHTML = isSystem ? '' : `
+          <div class="message-actions-triggers">
+            <button class="action-btn-trigger react-trigger">React</button>
+            <button class="action-btn-trigger reply-btn-trigger">Reply</button>
+            <button class="action-btn-trigger options-trigger">⋮</button>
+          </div>
+        `;
+
         msgDiv.innerHTML = `
           <img src="${userAvatar}" class="msg-avatar-icon" alt="Avatar" title="View Profile" />
           <div class="message-content-wrapper">
             <div class="message-info">
-              <span class="msg-username-trigger" title="View Profile">${escapeHTML(msg.sender)}</span> • <span>${msg.timestamp}</span>
-              <div class="message-actions-triggers">
-                <button class="action-btn-trigger react-trigger">React</button>
-                <button class="action-btn-trigger reply-btn-trigger">Reply</button>
-                <button class="action-btn-trigger options-trigger">⋮</button>
-              </div>
+              <span class="msg-username-trigger" title="View Profile" style="${isSystem ? 'color:#ef4444;' : ''}">${escapeHTML(msg.sender)}</span> • <span>${msg.timestamp}</span>
+              ${actionsTriggerHTML}
             </div>
             <div class="message-bubble" title="Double-click to copy message text">
               ${replyHTML}${contentHTML}
@@ -1215,66 +1357,70 @@
           });
         });
 
-        const replyBtn = msgDiv.querySelector('.reply-btn-trigger');
-        replyBtn.addEventListener('click', () => {
-          const snippet = msg.type === 'gif' ? '[GIF/Image]' : msg.text;
-          setReplyState(msg.sender, snippet);
-        });
+        if (!isSystem) {
+          const replyBtn = msgDiv.querySelector('.reply-btn-trigger');
+          replyBtn.addEventListener('click', () => {
+            let snippet = msg.text;
+            if (msg.type === 'gif') snippet = '[GIF/Image]';
+            if (msg.type === 'file') snippet = `[File: ${msg.fileName}]`;
+            setReplyState(msg.sender, snippet);
+          });
 
-        const reactTrigger = msgDiv.querySelector('.react-trigger');
-        const reactionPopup = msgDiv.querySelector('.reaction-popup');
-        reactTrigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.querySelectorAll('.reaction-popup').forEach(p => { if (p !== reactionPopup) p.style.display = 'none'; });
-          document.querySelectorAll('.options-popup').forEach(p => p.style.display = 'none');
-          reactionPopup.style.display = reactionPopup.style.display === 'flex' ? 'none' : 'flex';
-        });
+          const reactTrigger = msgDiv.querySelector('.react-trigger');
+          const reactionPopup = msgDiv.querySelector('.reaction-popup');
+          reactTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.reaction-popup').forEach(p => { if (p !== reactionPopup) p.style.display = 'none'; });
+            document.querySelectorAll('.options-popup').forEach(p => p.style.display = 'none');
+            reactionPopup.style.display = reactionPopup.style.display === 'flex' ? 'none' : 'flex';
+          });
 
-        const optionsTrigger = msgDiv.querySelector('.options-trigger');
-        const optionsPopup = msgDiv.querySelector('.options-popup');
-        optionsTrigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.querySelectorAll('.options-popup').forEach(p => { if (p !== optionsPopup) p.style.display = 'none'; });
-          document.querySelectorAll('.reaction-popup').forEach(p => p.style.display = 'none');
-          optionsPopup.style.display = optionsPopup.style.display === 'flex' ? 'none' : 'flex';
-        });
+          const optionsTrigger = msgDiv.querySelector('.options-trigger');
+          const optionsPopup = msgDiv.querySelector('.options-popup');
+          optionsTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.options-popup').forEach(p => { if (p !== optionsPopup) p.style.display = 'none'; });
+            document.querySelectorAll('.reaction-popup').forEach(p => p.style.display = 'none');
+            optionsPopup.style.display = optionsPopup.style.display === 'flex' ? 'none' : 'flex';
+          });
 
-        const editBtn = msgDiv.querySelector('.edit-msg-btn');
-        if (editBtn) {
-          editBtn.addEventListener('click', () => {
-            optionsPopup.style.display = 'none';
-            setEditState(msg.id, msg.text);
+          const editBtn = msgDiv.querySelector('.edit-msg-btn');
+          if (editBtn) {
+            editBtn.addEventListener('click', () => {
+              optionsPopup.style.display = 'none';
+              setEditState(msg.id, msg.text);
+            });
+          }
+
+          const deleteEveryoneBtn = msgDiv.querySelector('.delete-everyone-btn');
+          if (deleteEveryoneBtn) {
+            deleteEveryoneBtn.addEventListener('click', () => {
+              optionsPopup.style.display = 'none';
+              deleteForEveryone(msg.id);
+            });
+          }
+
+          const deleteMeBtn = msgDiv.querySelector('.delete-me-btn');
+          if (deleteMeBtn) {
+            deleteMeBtn.addEventListener('click', () => {
+              optionsPopup.style.display = 'none';
+              deleteForMe(msg.id);
+            });
+          }
+
+          reactionPopup.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+              toggleReaction(msg.id, btn.dataset.emoji);
+              reactionPopup.style.display = 'none';
+            });
+          });
+
+          msgDiv.querySelectorAll('.reaction-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+              toggleReaction(msg.id, pill.dataset.emoji);
+            });
           });
         }
-
-        const deleteEveryoneBtn = msgDiv.querySelector('.delete-everyone-btn');
-        if (deleteEveryoneBtn) {
-          deleteEveryoneBtn.addEventListener('click', () => {
-            optionsPopup.style.display = 'none';
-            deleteForEveryone(msg.id);
-          });
-        }
-
-        const deleteMeBtn = msgDiv.querySelector('.delete-me-btn');
-        if (deleteMeBtn) {
-          deleteMeBtn.addEventListener('click', () => {
-            optionsPopup.style.display = 'none';
-            deleteForMe(msg.id);
-          });
-        }
-
-        reactionPopup.querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', () => {
-            toggleReaction(msg.id, btn.dataset.emoji);
-            reactionPopup.style.display = 'none';
-          });
-        });
-
-        msgDiv.querySelectorAll('.reaction-pill').forEach(pill => {
-          pill.addEventListener('click', () => {
-            toggleReaction(msg.id, pill.dataset.emoji);
-          });
-        });
 
         if (msg.type === 'text') {
           const bubble = msgDiv.querySelector('.message-bubble');
