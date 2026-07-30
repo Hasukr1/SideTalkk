@@ -209,14 +209,6 @@
       margin-top: 0.3rem;
     }
 
-    .seen-status {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      margin-top: 0.2rem;
-      padding: 0 0.4rem;
-      font-style: italic;
-    }
-
     /* Toolbar for Emojis & GIFs */
     .quick-toolbar {
       padding: 0.4rem 1rem;
@@ -350,7 +342,7 @@
   <div id="authScreen" class="auth-screen">
     <div class="auth-box">
       <div class="auth-title">SideTalk</div>
-      <div class="auth-subtitle">Pick a nickname to jump straight into the live chatroom!</div>
+      <div class="auth-subtitle">Pick a unique nickname to jump straight into the live chatroom!</div>
       <input type="text" id="loginUsernameInput" class="chat-input" placeholder="Enter your nickname..." maxlength="14" autocomplete="off" />
       <button id="loginBtn" class="send-btn">Start Chatting</button>
     </div>
@@ -412,7 +404,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-    import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
@@ -429,6 +421,22 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
+
+    // Profanity, Slur, and Inappropriate Word Filter List
+    const blockedWords = [
+      "fuck", "shit", "bitch", "asshole", "cunt", "nigger", "nigga", 
+      "faggot", "retard", "whore", "slut", "dick", "pussy", "cock", 
+      "bastard", "motherfucker", "gook", "chink", "spic", "tranny"
+    ];
+
+    function containsProfanity(text) {
+      if (!text) return false;
+      const lower = text.toLowerCase();
+      return blockedWords.some(word => {
+        const regex = new RegExp(`\\b${word}\\b`, 'i');
+        return regex.test(lower) || lower.includes(word);
+      });
+    }
 
     const presetGIFs = [
       "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3A5MHFvZzN2ZjB1dDJzbHN4ZmprZjBiaThseXlyM3Y1bWV0dDNwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif",
@@ -474,7 +482,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.body.setAttribute('data-theme', state.theme);
 
-      // If user already logged in previously, skip menu automatically!
       if (state.user) {
         startChatSession(state.user);
       }
@@ -484,13 +491,11 @@
     });
 
     function setupListeners() {
-      // Login Button Click
       elements.loginBtn.addEventListener('click', () => handleLogin());
       elements.loginUsernameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleLogin();
       });
 
-      // Theme Toggle Logic
       elements.themeToggleBtn.addEventListener('click', () => {
         const currentTheme = document.body.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -498,7 +503,6 @@
         localStorage.setItem('sidetalk_theme', newTheme);
       });
 
-      // Send Text Message
       elements.sendBtn.addEventListener('click', () => sendTextMessage());
       elements.messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -507,7 +511,6 @@
         }
       });
 
-      // Quick Emoji insertion
       document.querySelectorAll('.tool-btn[data-emoji]').forEach(btn => {
         btn.addEventListener('click', () => {
           elements.messageInput.value += btn.dataset.emoji;
@@ -515,13 +518,11 @@
         });
       });
 
-      // Toggle GIF Menu
       elements.gifToggleBtn.addEventListener('click', () => {
         const isVisible = elements.gifModal.style.display === 'block';
         elements.gifModal.style.display = isVisible ? 'none' : 'block';
       });
 
-      // Send Custom GIF Link
       elements.sendGifLinkBtn.addEventListener('click', () => {
         const url = elements.gifLinkInput.value.trim();
         if (url) {
@@ -532,12 +533,33 @@
       });
     }
 
-    function handleLogin() {
+    async function handleLogin() {
       const name = elements.loginUsernameInput.value.trim();
       if (!name) {
         alert("Please enter a valid nickname!");
         return;
       }
+
+      // Check profanity / slurs in nickname
+      if (containsProfanity(name)) {
+        alert("This nickname contains restricted words, profanity, or slurs.");
+        return;
+      }
+
+      // Check if username is already taken in Firebase
+      try {
+        const userRef = ref(db, 'users/' + name);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          alert("This username is already taken by someone online! Please choose a different nickname.");
+          return;
+        }
+        // Register user in database
+        await set(userRef, { online: true, lastLogin: Date.now() });
+      } catch (err) {
+        console.error(err);
+      }
+
       state.user = name;
       localStorage.setItem('sidetalk_user', name);
       startChatSession(name);
@@ -567,11 +589,20 @@
       const text = elements.messageInput.value.trim();
       if (!text) return;
 
+      if (containsProfanity(text)) {
+        alert("Your message contains inappropriate language or slurs and cannot be sent.");
+        return;
+      }
+
       pushMessageToFirebase({ text: text, type: 'text' });
       elements.messageInput.value = '';
     }
 
     function sendGIFMessage(url) {
+      if (containsProfanity(url)) {
+        alert("Invalid link.");
+        return;
+      }
       pushMessageToFirebase({ url: url, type: 'gif' });
     }
 
@@ -580,7 +611,6 @@
         sender: state.user,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAt: Date.now(),
-        seenBy: [state.user],
         ...payload
       };
 
@@ -591,19 +621,14 @@
     }
 
     function listenForFirebaseMessages() {
+      // Clean listener without recursive loops to fix duplication
       onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
         state.messages = [];
         
         if (data) {
           Object.keys(data).forEach(key => {
-            const msgObj = { id: key, ...data[key] };
-            state.messages.push(msgObj);
-            
-            const seenList = msgObj.seenBy || [];
-            if (!seenList.includes(state.user)) {
-              markMessageAsSeen(key, seenList);
-            }
+            state.messages.push({ id: key, ...data[key] });
           });
 
           state.messages.sort((a, b) => a.createdAt - b.createdAt);
@@ -614,12 +639,6 @@
         alert("Failed to load messages! Firebase Error: " + error.message);
         console.error(error);
       });
-    }
-
-    function markMessageAsSeen(msgId, currentSeenList) {
-      const updatedSeen = [...currentSeenList, state.user];
-      const msgDbRef = ref(db, `messages/${msgId}`);
-      update(msgDbRef, { seenBy: updatedSeen });
     }
 
     function renderMessages() {
@@ -637,18 +656,9 @@
           contentHTML = escapeHTML(msg.text);
         }
 
-        const seenList = msg.seenBy || [];
-        const seenByOthers = seenList.filter(u => u !== msg.sender);
-        
-        let seenHTML = '';
-        if (isMe && seenByOthers.length > 0) {
-          seenHTML = `<div class="seen-status">Seen by ${seenByOthers.join(', ')}</div>`;
-        }
-
         msgDiv.innerHTML = `
           <div class="message-info">${msg.sender} • ${msg.timestamp}</div>
           <div class="message-bubble" title="Double-click to copy message">${contentHTML}</div>
-          ${seenHTML}
         `;
 
         if (msg.type === 'text') {
