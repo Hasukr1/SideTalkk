@@ -418,7 +418,38 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
+      authDomain: "sidetalkk.firebaseapp.com",
+      databaseURL: "https://sidetalkk-default-rtdb.firebaseio.com",
+      projectId: "sidetalkk",
+      storageBucket: "sidetalkk.firebasestorage.app",
+      messagingSenderId: "585493665739",
+      appId: "1:585493665739:web:e4b00ea7117e71fcb2084e",
+      measurementId: "G-6SYMK7PYGY"
+    };
+
+    let db = null;
+    let isFirebaseActive = false;
+
+    // Unique user ID to identify messages sent by you vs others
+    let userId = localStorage.getItem("sidetalkk_user_id") || "user_" + Math.random().toString(36).substring(2, 9);
+    localStorage.setItem("sidetalkk_user_id", userId);
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getDatabase(app);
+      isFirebaseActive = true;
+      console.log("Sidetalkk: Successfully connected to Firebase!");
+    } catch (err) {
+      console.error("Sidetalkk: Firebase connection error. Falling back to local storage.", err);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       // DOM Elements
       const messagesContainer = document.getElementById("messagesContainer");
@@ -433,11 +464,7 @@
       const closeGifModalBtn = document.getElementById("closeGifModalBtn");
       const gifGrid = document.getElementById("gifGrid");
 
-      // Storage State
-      let messages = JSON.parse(localStorage.getItem("sidetalkk_messages") || "[]");
-
-      // Initialize Application
-      renderMessages();
+      let messages = [];
 
       // Send Message Handler
       function sendMessage(text = "", gifUrl = null) {
@@ -445,18 +472,35 @@
         if (!cleanText && !gifUrl) return;
 
         const newMessage = {
-          id: Date.now(),
+          senderId: userId,
           text: cleanText,
           gifUrl: gifUrl,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          sentByMe: true
+          createdAt: Date.now()
         };
 
-        messages.push(newMessage);
-        saveAndRender();
+        if (isFirebaseActive && db) {
+          push(ref(db, 'sidetalkk_messages'), newMessage)
+            .catch(err => console.error("Firebase send failed:", err));
+        } else {
+          messages.push(newMessage);
+          saveAndRenderLocal();
+        }
 
         chatInput.value = "";
         emojiPickerBar.classList.remove("show");
+      }
+
+      // Live Firebase Listener
+      if (isFirebaseActive && db) {
+        onValue(ref(db, 'sidetalkk_messages'), (snapshot) => {
+          const data = snapshot.val();
+          messages = data ? Object.values(data) : [];
+          renderMessages();
+        });
+      } else {
+        messages = JSON.parse(localStorage.getItem("sidetalkk_messages") || "[]");
+        renderMessages();
       }
 
       // Event Bindings
@@ -503,14 +547,18 @@
 
       // Clear History
       clearChatBtn.addEventListener("click", () => {
-        if (confirm("Clear all local messages?")) {
-          messages = [];
-          saveAndRender();
+        if (confirm("Clear all messages?")) {
+          if (isFirebaseActive && db) {
+            remove(ref(db, 'sidetalkk_messages'))
+              .catch(err => console.error("Firebase clear failed:", err));
+          } else {
+            messages = [];
+            saveAndRenderLocal();
+          }
         }
       });
 
-      // Storage & Rendering
-      function saveAndRender() {
+      function saveAndRenderLocal() {
         localStorage.setItem("sidetalkk_messages", JSON.stringify(messages));
         renderMessages();
       }
@@ -528,7 +576,8 @@
 
         messages.forEach(msg => {
           const wrapper = document.createElement("div");
-          wrapper.className = `message-wrapper ${msg.sentByMe ? 'sent' : 'received'}`;
+          const isSentByMe = msg.senderId === userId;
+          wrapper.className = `message-wrapper ${isSentByMe ? 'sent' : 'received'}`;
 
           let contentHtml = '';
           if (msg.text) {
