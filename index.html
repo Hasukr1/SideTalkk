@@ -350,6 +350,23 @@
       margin-left: auto;
     }
 
+    /* Seen Status Indicator */
+    .seen-status {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .seen-status.seen {
+      color: #10b981;
+      font-weight: 600;
+    }
+
     /* Reaction Pills */
     .message-reactions {
       display: flex;
@@ -675,15 +692,6 @@
     </div>
 
     <div class="chat-input-area">
-      <div class="quick-toolbar">
-        <button id="emojiPickerToggleBtn" class="tool-btn">😀 Emojis</button>
-        <button id="gifToggleBtn" class="tool-btn">GIFs</button>
-        <button class="tool-btn" data-emoji="👍">👍</button>
-        <button class="tool-btn" data-emoji="❤️">❤️</button>
-        <button class="tool-btn" data-emoji="😂">😂</button>
-        <button class="tool-btn" data-emoji="🔥">🔥</button>
-      </div>
-
       <!-- Emoji Picker Modal -->
       <div id="emojiPickerModal" class="emoji-picker-modal">
         <div class="emoji-grid">
@@ -711,8 +719,17 @@
         </div>
       </div>
 
+      <div class="quick-toolbar">
+        <button id="emojiPickerToggleBtn" class="tool-btn">😀 Emojis</button>
+        <button id="gifToggleBtn" class="tool-btn">GIFs</button>
+        <button class="tool-btn" data-emoji="👍">👍</button>
+        <button class="tool-btn" data-emoji="❤️">❤️</button>
+        <button class="tool-btn" data-emoji="😂">😂</button>
+        <button class="tool-btn" data-emoji="🔥">🔥</button>
+      </div>
+
       <div class="input-row">
-        <!-- New File Attachment Buttons -->
+        <!-- File Attachment Button -->
         <input type="file" id="fileInput" style="display: none;" />
         <button id="attachmentBtn" class="tool-btn" title="Attach a file" style="padding: 12px;">📎</button>
         
@@ -727,8 +744,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
     import { getDatabase, ref as dbRef, push, onValue, get, set, remove, onDisconnect, update, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
-    
-    // NEW IMPORTS FOR FILE STORAGE
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
 
     const DEFAULT_AVATAR = "https://png.pngtree.com/png-vector/20250512/ourmid/pngtree-default-avatar-profile-icon-gray-placeholder-vector-png-image_16213764.png";
@@ -747,7 +762,7 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
-    const storage = getStorage(app); // Initialize Storage
+    const storage = getStorage(app);
     const messagesRef = dbRef(db, 'messages');
     const usersRef = dbRef(db, 'users');
 
@@ -846,7 +861,6 @@
         }
       });
 
-      // FILE UPLOAD LISTENERS
       elements.attachmentBtn.addEventListener('click', () => {
         elements.fileInput.click();
       });
@@ -904,6 +918,10 @@
           document.querySelectorAll('.options-popup').forEach(p => p.style.display = 'none');
           document.querySelectorAll('.profile-card-modal').forEach(p => p.remove());
         }
+      });
+
+      elements.messagesContainer.addEventListener('scroll', () => {
+        checkMessagesSeen();
       });
     }
 
@@ -1010,7 +1028,6 @@
       elements.previewBar.style.display = 'none';
     }
 
-    // MAIN ACTION HANDLER - COMMANDS INTERCEPTED HERE
     function handleMainAction() {
       const text = elements.messageInput.value.trim();
       if (!text) return;
@@ -1022,13 +1039,16 @@
 
       // Check if it's a command
       if (text.startsWith("/")) {
+        if (state.user !== "Hasukr") {
+          alert("You do not have permission to use slash commands.");
+          return;
+        }
         handleSlashCommand(text);       
         elements.messageInput.value = ''; 
         clearActiveState();
         return;                         
       }
 
-      // Normal Message Execution
       if (state.editingMsgId) {
         const msgRef = dbRef(db, `messages/${state.editingMsgId}`);
         update(msgRef, { text: text, edited: true }).then(() => {
@@ -1047,7 +1067,6 @@
       }
     }
 
-    // COMMAND PROCESSOR
     function handleSlashCommand(text) {
       const args = text.split(" ");
       const command = args[0].toLowerCase();
@@ -1067,7 +1086,7 @@
           pushMessageToFirebase({
             text: `📢 ANNOUNCEMENT: ${announcement}`,
             type: "system"
-          }, "SYSTEM_ADMIN"); // Overriding sender
+          }, "SYSTEM_ADMIN");
           break;
 
         case "/clear":
@@ -1076,12 +1095,27 @@
           }
           break;
 
+        case "/cf":
+          const cfResult = Math.random() < 0.5 ? "🪙 Heads!" : "🪙 Tails!";
+          pushMessageToFirebase({
+            text: `🎮 Coin Flip Result: ${cfResult}`,
+            type: "system"
+          }, "MINIGAME");
+          break;
+
+        case "/roll":
+          const rollResult = Math.floor(Math.random() * 6) + 1;
+          pushMessageToFirebase({
+            text: `🎲 Dice Roll Result: ${rollResult} (out of 6)`,
+            type: "system"
+          }, "MINIGAME");
+          break;
+
         default:
-          alert("Unknown command. Try /delete, /announce, or /clear.");
+          alert("Unknown command. Try /delete, /announce, /clear, /cf, or /roll.");
       }
     }
 
-    // DATABASE DELETE USER FUNCTION
     async function deleteUserMessages(targetUsername) {
       const userMessagesQuery = query(messagesRef, orderByChild("sender"), equalTo(targetUsername));
       
@@ -1101,7 +1135,6 @@
       }
     }
 
-    // FILE UPLOAD FUNCTION TO STORAGE
     async function handleFileUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1129,7 +1162,7 @@
       } catch (error) {
         alert("File upload failed: " + error.message);
       } finally {
-        elements.fileInput.value = ''; // Reset input
+        elements.fileInput.value = '';
         elements.messageInput.placeholder = "Type a message or use a /command...";
         elements.messageInput.disabled = false;
         clearActiveState();
@@ -1157,6 +1190,7 @@
         bio: overrideSender ? "Server Administration System" : state.bio,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAt: Date.now(),
+        seenBy: { [overrideSender || state.user]: true },
         ...payload
       };
 
@@ -1215,9 +1249,28 @@
         }
         
         renderMessages();
+        checkMessagesSeen();
       }, (error) => {
         alert("Failed to load messages! Firebase Error: " + error.message);
         console.error(error);
+      });
+    }
+
+    function checkMessagesSeen() {
+      if (!state.user) return;
+      const containerRect = elements.messagesContainer.getBoundingClientRect();
+      
+      elements.messagesContainer.querySelectorAll('.message').forEach((msgEl, index) => {
+        const msg = state.messages[index];
+        if (!msg || msg.sender === state.user) return;
+        
+        const rect = msgEl.getBoundingClientRect();
+        if (rect.top >= containerRect.top && rect.bottom <= containerRect.bottom) {
+          if (!msg.seenBy || !msg.seenBy[state.user]) {
+            const seenRef = dbRef(db, `messages/${msg.id}/seenBy/${state.user}`);
+            set(seenRef, true);
+          }
+        }
       });
     }
 
@@ -1286,6 +1339,17 @@
           contentHTML = `${escapeHTML(msg.text)}${editedLabel}`;
         }
 
+        let seenHTML = '';
+        if (isMe && !isSystem) {
+          const seenCount = msg.seenBy ? Object.keys(msg.seenBy).length - (msg.seenBy[state.user] ? 1 : 0) : 0;
+          const isSeen = seenCount > 0;
+          seenHTML = `
+            <div class="seen-status ${isSeen ? 'seen' : ''}">
+              ${isSeen ? '✓✓ Seen' : '✓ Sent'}
+            </div>
+          `;
+        }
+
         let reactionsHTML = '';
         if (msg.reactions && !isSystem) {
           reactionsHTML = '<div class="message-reactions">';
@@ -1344,6 +1408,7 @@
                 ${optionsButtonsHTML}
               </div>
             </div>
+            ${seenHTML}
             ${reactionsHTML}
           </div>
         `;
