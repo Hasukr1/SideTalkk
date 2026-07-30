@@ -204,7 +204,7 @@
       <div>
         <span style="font-size: 0.85rem; color: var(--subtext);">Logged as: </span>
         <strong id="currentUserName">Guest</strong>
-        <button onclick="changeUsername()" style="background: none; border: none; color: var(--accent); margin-left: 8px; cursor: pointer; text-decoration: underline;">Change</button>
+        <button type="button" onclick="changeUsername()" style="background: none; border: none; color: var(--accent); margin-left: 8px; cursor: pointer; text-decoration: underline;">Change</button>
       </div>
     </div>
 
@@ -212,7 +212,7 @@
 
     <div class="active-reply-bar" id="replyBar">
       <span id="replyText">Replying to...</span>
-      <button onclick="cancelReply()">✕</button>
+      <button type="button" onclick="cancelReply()">✕</button>
     </div>
 
     <div class="emoji-picker" id="emojiPicker">
@@ -220,11 +220,12 @@
       <span>😎</span><span>💀</span><span>🎉</span><span>😭</span><span>✨</span>
     </div>
 
-    <form class="footer" id="chatForm">
+    <!-- NON-FORM FOOTER TO PREVENT ANY PAGE RELOADS -->
+    <div class="footer">
       <button type="button" class="emoji-btn" id="emojiToggle">😊</button>
       <input type="text" id="msgInput" class="chat-input" placeholder="Type a message..." autocomplete="off">
-      <button type="submit" class="btn">Send</button>
-    </form>
+      <button type="button" class="btn" id="sendBtn">Send</button>
+    </div>
   </div>
 
   <script>
@@ -277,9 +278,8 @@
       document.getElementById('replyBar').style.display = 'none';
     }
 
-    // SEND MESSAGE
-    document.getElementById('chatForm').onsubmit = async (e) => {
-      e.preventDefault();
+    // SEND MESSAGE LOGIC
+    async function sendMessage() {
       const input = document.getElementById('msgInput');
       const text = input.value.trim();
       if (!text) return;
@@ -294,13 +294,29 @@
       input.value = '';
       cancelReply();
 
-      await supabase.from('messages').insert([payload]);
-    };
+      try {
+        const { error } = await supabase.from('messages').insert([payload]);
+        if (error) console.error("Supabase Error:", error);
+      } catch (err) {
+        console.error("Failed to send message:", err);
+      }
+    }
+
+    // CLICK SEND BUTTON
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+    // PRESS ENTER KEY TO SEND
+    document.getElementById('msgInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
 
     // RENDER MESSAGE BUBBLE
     function renderMessage(msg) {
       const isMe = msg.username === currentUser;
-      const timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       const replyHTML = msg.reply_user ? `<div class="reply-preview-bubble"><strong>${msg.reply_user}:</strong> ${msg.reply_text}</div>` : '';
 
@@ -328,9 +344,15 @@
 
     // LOAD HISTORICAL MESSAGES
     async function loadHistory() {
-      const { data: messages } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
-      if (messages) {
-        messages.forEach(renderMessage);
+      try {
+        const { data: messages, error } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
+        if (error) console.error("Error loading messages:", error);
+        if (messages) {
+          document.getElementById('chatBox').innerHTML = '';
+          messages.forEach(renderMessage);
+        }
+      } catch (err) {
+        console.error("History load error:", err);
       }
     }
 
