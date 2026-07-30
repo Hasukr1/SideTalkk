@@ -3,473 +3,557 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sidetalkk — Live Chat</title>
+  <title>Sidetalkk — Modern Web Messenger</title>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
   <style>
     :root {
-      --bg-dark: #0f172a;
-      --bg-sidebar: #1e293b;
-      --bg-chat: #0f172a;
-      --bg-card: #334155;
+      --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
       --accent: #6366f1;
       --accent-hover: #4f46e5;
+      --bubble-sent: #6366f1;
+      --bubble-sent-text: #ffffff;
+      --bubble-received: #f1f5f9;
+      --bubble-received-text: #0f172a;
+      --input-bg: #f8fafc;
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.07);
+    }
+
+    [data-theme="dark"] {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --msg-sent: #4f46e5;
-      --msg-received: #334155;
-      --border: #334155;
+      --accent: #818cf8;
+      --accent-hover: #6366f1;
+      --bubble-sent: #6366f1;
+      --bubble-sent-text: #ffffff;
+      --bubble-received: #334155;
+      --bubble-received-text: #f8fafc;
+      --input-bg: #1e293b;
+      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      height: 100vh;
+    body, html {
+      height: 100%;
+      width: 100%;
+      background: var(--bg-gradient);
       display: flex;
       justify-content: center;
       align-items: center;
       overflow: hidden;
     }
 
-    /* Main Container */
-    .app-container {
+    /* Floating Window Card Layout */
+    .app-card {
       width: 100%;
-      max-width: 1100px;
-      height: 90vh;
-      background-color: var(--bg-sidebar);
-      border-radius: 16px;
+      max-width: 900px;
+      height: 88vh;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
       display: flex;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--border);
+      flex-direction: column;
       overflow: hidden;
+      position: relative;
     }
 
-    /* Sidebar */
-    .sidebar {
-      width: 280px;
-      background-color: #111827;
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 1rem;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      background-color: var(--accent);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-
-    .brand-name {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.025em;
-    }
-
-    .user-profile {
-      background-color: var(--bg-card);
-      padding: 0.75rem;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-    }
-
-    .user-profile label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .user-profile input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-size: 0.95rem;
-      font-weight: 600;
-      outline: none;
-    }
-
-    .room-list-header {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .room-item {
-      padding: 0.6rem 0.8rem;
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s ease;
-      margin-bottom: 0.25rem;
-    }
-
-    .room-item:hover, .room-item.active {
-      background-color: var(--bg-card);
-      color: var(--text-main);
-      font-weight: 600;
-    }
-
-    /* Main Chat Area */
-    .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background-color: var(--bg-chat);
-    }
-
-    .chat-header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border);
+    /* App Header */
+    .app-header {
+      padding: 18px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    .chat-header-info h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .chat-header-info p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .clear-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.2s;
-    }
-
-    .clear-btn:hover {
-      background-color: #ef4444;
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
       color: white;
-      border-color: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
     }
 
-    /* Messages List */
+    .user-details h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .user-status {
+      font-size: 0.75rem;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--input-bg);
+      color: var(--text-main);
+    }
+
+    /* Messages Box */
     .messages-container {
-      flex: 1;
-      padding: 1.5rem;
+      flex-grow: 1;
+      padding: 24px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 16px;
     }
 
-    .message {
+    .message-wrapper {
       display: flex;
       flex-direction: column;
-      max-width: 65%;
+      max-width: 68%;
     }
 
-    .message.sent {
+    .message-wrapper.sent {
       align-self: flex-end;
       align-items: flex-end;
     }
 
-    .message.received {
+    .message-wrapper.received {
       align-self: flex-start;
       align-items: flex-start;
     }
 
-    .message-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-
     .message-bubble {
-      padding: 0.75rem 1rem;
-      border-radius: 14px;
+      padding: 12px 18px;
+      border-radius: 20px;
       font-size: 0.95rem;
-      line-height: 1.4;
+      line-height: 1.5;
       word-break: break-word;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
-    .message.sent .message-bubble {
-      background-color: var(--msg-sent);
-      color: white;
-      border-bottom-right-radius: 2px;
+    .message-wrapper.sent .message-bubble {
+      background-color: var(--bubble-sent);
+      color: var(--bubble-sent-text);
+      border-bottom-right-radius: 4px;
     }
 
-    .message.received .message-bubble {
-      background-color: var(--msg-received);
-      color: var(--text-main);
-      border-bottom-left-radius: 2px;
+    .message-wrapper.received .message-bubble {
+      background-color: var(--bubble-received);
+      color: var(--bubble-received-text);
+      border-bottom-left-radius: 4px;
     }
 
-    /* Input Box */
-    .input-container {
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--border);
+    .message-media {
+      max-width: 260px;
+      border-radius: 14px;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .message-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    /* Input Footer & Floating Bars */
+    .input-area {
+      padding: 16px 24px;
+      border-top: 1px solid var(--card-border);
+      position: relative;
+    }
+
+    /* Emoji Picker Bar */
+    .emoji-picker-bar {
+      position: absolute;
+      bottom: 80px;
+      left: 24px;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      padding: 8px 12px;
+      border-radius: 30px;
+      display: none;
+      gap: 10px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+    }
+
+    .emoji-picker-bar.show {
       display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      background-color: var(--bg-sidebar);
     }
 
-    .message-input {
-      flex: 1;
-      background-color: var(--bg-dark);
-      border: 1px solid var(--border);
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
+    .emoji-item {
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .emoji-item:hover {
+      transform: scale(1.3);
+    }
+
+    .input-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 8px 12px 8px 18px;
+    }
+
+    .chat-input {
+      flex-grow: 1;
+      background: none;
+      border: none;
+      outline: none;
       color: var(--text-main);
       font-size: 0.95rem;
-      outline: none;
-      transition: border 0.2s;
-    }
-
-    .message-input:focus {
-      border-color: var(--accent);
     }
 
     .send-btn {
       background-color: var(--accent);
       color: white;
       border: none;
-      padding: 0.8rem 1.5rem;
-      border-radius: 10px;
-      font-weight: 600;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       cursor: pointer;
-      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.1s ease;
     }
 
     .send-btn:hover {
       background-color: var(--accent-hover);
     }
 
-    @media (max-width: 768px) {
-      .app-container {
-        height: 100vh;
-        border-radius: 0;
-      }
-      .sidebar {
-        width: 80px;
-        padding: 0.5rem;
-      }
-      .brand-name, .user-profile label, .room-list-header {
-        display: none;
-      }
-      .message {
-        max-width: 85%;
-      }
+    .send-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* GIF Modal Overlay */
+    .gif-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .gif-modal.show {
+      display: flex;
+    }
+
+    .gif-card {
+      width: 90%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .gif-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .gif-header h3 {
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .gif-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .gif-option {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .gif-option:hover {
+      transform: scale(1.03);
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
 
-  <div class="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo">S</div>
-        <div class="brand-name">Sidetalkk</div>
-      </div>
-
-      <div class="user-profile">
-        <label for="usernameInput">Your Handle</label>
-        <input type="text" id="usernameInput" value="User_1" maxlength="15" />
-      </div>
-
-      <div class="room-list-header">Channels</div>
-      <div class="room-item active" data-room="general"># general</div>
-      <div class="room-item" data-room="dev"># developers</div>
-      <div class="room-item" data-room="random"># random</div>
-    </aside>
-
-    <!-- Main Chat Window -->
-    <main class="chat-area">
-      <header class="chat-header">
-        <div class="chat-header-info">
-          <h2 id="currentRoomTitle"># general</h2>
-          <p id="onlineStatus">Status: Connected</p>
+  <div class="app-card">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="user-info">
+        <div class="avatar">S</div>
+        <div class="user-details">
+          <h2>Sidetalkk Space</h2>
+          <div class="user-status"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Active Session</div>
         </div>
-        <button id="clearChatBtn" class="clear-btn">Clear Local View</button>
-      </header>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="clearChatBtn" title="Clear Chat History">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </header>
 
-      <div id="messagesContainer" class="messages-container">
-        <!-- Messages render dynamically here -->
+    <!-- Chat Messages Container -->
+    <main class="messages-container" id="messagesContainer">
+      <!-- Messages load dynamically -->
+    </main>
+
+    <!-- Input Bar & Floating Tools -->
+    <footer class="input-area">
+      <!-- Quick Emoji Bar -->
+      <div class="emoji-picker-bar" id="emojiPickerBar">
+        <span class="emoji-item">👍</span>
+        <span class="emoji-item">❤️</span>
+        <span class="emoji-item">😂</span>
+        <span class="emoji-item">🔥</span>
+        <span class="emoji-item">✨</span>
+        <span class="emoji-item">🎉</span>
       </div>
 
-      <footer class="input-container">
-        <input type="text" id="messageInput" class="message-input" placeholder="Type a message into #general..." autocomplete="off" />
-        <button id="sendBtn" class="send-btn">Send</button>
-      </footer>
-    </main>
+      <div class="input-box">
+        <button class="icon-btn" id="emojiToggleBtn" title="Emojis">
+          <i class="fa-regular fa-face-smile"></i>
+        </button>
+        <button class="icon-btn" id="gifModalBtn" title="Send GIF">
+          <i class="fa-solid fa-film"></i>
+        </button>
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off" />
+        <button class="send-btn" id="sendBtn">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </footer>
+
+    <!-- GIF Picker Modal -->
+    <div class="gif-modal" id="gifModal">
+      <div class="gif-card">
+        <div class="gif-header">
+          <h3>Select a GIF</h3>
+          <button class="icon-btn" id="closeGifModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="gif-grid" id="gifGrid">
+          <!-- Curated High-Quality Animated GIFs -->
+          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHYyOXl0a29mNDlxbXJocm01NWszczE5bzYxczhsbDhrOG9xZHN2bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlHJGHe3yAMhdQY/giphy.gif" alt="GIF" />
+          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnE4aXltZXJ2MWsxeWdseG1udm8yODNlMHdrMHZzcHNxeW9vNGZldyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsjLu9N65q5o8U/giphy.gif" alt="GIF" />
+          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmsyd3VpdXRvb2RmbThmdmE3Nmc3Y2M1MnYwZXpobXlkaGRpdzgzYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26u4b45b8KXYABiju/giphy.gif" alt="GIF" />
+          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYxMWw0Zng4ZjNjcXZrMjJmdzhxNWszdTFjYzYxaHFxeW85bXBkNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT0xezQGU5xCDJuCPe/giphy.gif" alt="GIF" />
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // System State
-    const state = {
-      username: localStorage.getItem('sidetalkk_user') || 'Guest_' + Math.floor(Math.random() * 1000),
-      currentRoom: 'general',
-      messages: JSON.parse(localStorage.getItem('sidetalkk_msgs')) || []
-    };
+    document.addEventListener("DOMContentLoaded", () => {
+      // DOM Elements
+      const messagesContainer = document.getElementById("messagesContainer");
+      const chatInput = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("sendBtn");
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      const clearChatBtn = document.getElementById("clearChatBtn");
+      const emojiToggleBtn = document.getElementById("emojiToggleBtn");
+      const emojiPickerBar = document.getElementById("emojiPickerBar");
+      const gifModalBtn = document.getElementById("gifModalBtn");
+      const gifModal = document.getElementById("gifModal");
+      const closeGifModalBtn = document.getElementById("closeGifModalBtn");
+      const gifGrid = document.getElementById("gifGrid");
 
-    // DOM Elements
-    const elements = {
-      usernameInput: document.getElementById('usernameInput'),
-      messagesContainer: document.getElementById('messagesContainer'),
-      messageInput: document.getElementById('messageInput'),
-      sendBtn: document.getElementById('sendBtn'),
-      clearChatBtn: document.getElementById('clearChatBtn'),
-      currentRoomTitle: document.getElementById('currentRoomTitle'),
-      roomItems: document.querySelectorAll('.room-item')
-    };
+      // Storage State
+      let messages = JSON.parse(localStorage.getItem("sidetalkk_messages") || "[]");
 
-    // Initialization
-    document.addEventListener('DOMContentLoaded', () => {
-      elements.usernameInput.value = state.username;
-      setupEventListeners();
+      // Initialize Application
       renderMessages();
-    });
 
-    // Binding Event Listeners safely
-    function setupEventListeners() {
-      // Send Message Button
-      elements.sendBtn.addEventListener('click', handleSendMessage);
+      // Send Message Handler
+      function sendMessage(text = "", gifUrl = null) {
+        const cleanText = text.trim();
+        if (!cleanText && !gifUrl) return;
 
-      // Enter Key Support
-      elements.messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        const newMessage = {
+          id: Date.now(),
+          text: cleanText,
+          gifUrl: gifUrl,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          sentByMe: true
+        };
+
+        messages.push(newMessage);
+        saveAndRender();
+
+        chatInput.value = "";
+        emojiPickerBar.classList.remove("show");
+      }
+
+      // Event Bindings
+      sendBtn.addEventListener("click", () => sendMessage(chatInput.value));
+
+      chatInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
           e.preventDefault();
-          handleSendMessage();
+          sendMessage(chatInput.value);
         }
       });
 
-      // Update Username
-      elements.usernameInput.addEventListener('change', (e) => {
-        const val = e.target.value.trim();
-        if (val) {
-          state.username = val;
-          localStorage.setItem('sidetalkk_user', val);
+      // Emoji Toggle & Insertion
+      emojiToggleBtn.addEventListener("click", () => {
+        emojiPickerBar.classList.toggle("show");
+      });
+
+      emojiPickerBar.addEventListener("click", (e) => {
+        if (e.target.classList.contains("emoji-item")) {
+          chatInput.value += e.target.textContent;
+          chatInput.focus();
         }
       });
 
-      // Channel Switching
-      elements.roomItems.forEach(item => {
-        item.addEventListener('click', () => {
-          elements.roomItems.forEach(r => r.classList.remove('active'));
-          item.classList.add('active');
-          state.currentRoom = item.dataset.room;
-          elements.currentRoomTitle.textContent = `# ${state.currentRoom}`;
-          elements.messageInput.placeholder = `Type a message into #${state.currentRoom}...`;
-          renderMessages();
-        });
+      // GIF Modal Logic
+      gifModalBtn.addEventListener("click", () => gifModal.classList.add("show"));
+      closeGifModalBtn.addEventListener("click", () => gifModal.classList.remove("show"));
+
+      gifGrid.addEventListener("click", (e) => {
+        if (e.target.tagName === "IMG") {
+          const gifUrl = e.target.src;
+          sendMessage("", gifUrl);
+          gifModal.classList.remove("show");
+        }
       });
 
-      // Clear Chat View
-      elements.clearChatBtn.addEventListener('click', () => {
-        if (confirm("Clear local messages in this room?")) {
-          state.messages = state.messages.filter(m => m.room !== state.currentRoom);
+      // Theme Switcher
+      themeToggleBtn.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+        document.body.setAttribute("data-theme", nextTheme);
+        themeToggleBtn.innerHTML = nextTheme === "dark" ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+      });
+
+      // Clear History
+      clearChatBtn.addEventListener("click", () => {
+        if (confirm("Clear all local messages?")) {
+          messages = [];
           saveAndRender();
         }
       });
-    }
 
-    // Message Logic
-    function handleSendMessage() {
-      const content = elements.messageInput.value.trim();
-      if (!content) return;
-
-      const newMessage = {
-        id: Date.now(),
-        sender: state.username,
-        text: content,
-        room: state.currentRoom,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      state.messages.push(newMessage);
-      elements.messageInput.value = '';
-      saveAndRender();
-    }
-
-    function saveAndRender() {
-      localStorage.setItem('sidetalkk_msgs', JSON.stringify(state.messages));
-      renderMessages();
-    }
-
-    function renderMessages() {
-      elements.messagesContainer.innerHTML = '';
-      const currentRoomMsgs = state.messages.filter(m => m.room === state.currentRoom);
-
-      if (currentRoomMsgs.length === 0) {
-        elements.messagesContainer.innerHTML = `
-          <div style="text-align: center; color: var(--text-muted); margin-top: auto; margin-bottom: auto;">
-            <p>No messages in #${state.currentRoom} yet.</p>
-            <p style="font-size: 0.8rem; margin-top: 0.25rem;">Start the conversation!</p>
-          </div>
-        `;
-        return;
+      // Storage & Rendering
+      function saveAndRender() {
+        localStorage.setItem("sidetalkk_messages", JSON.stringify(messages));
+        renderMessages();
       }
 
-      currentRoomMsgs.forEach(msg => {
-        const isSentByMe = msg.sender === state.username;
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${isSentByMe ? 'sent' : 'received'}`;
+      function renderMessages() {
+        messagesContainer.innerHTML = "";
+        
+        if (messages.length === 0) {
+          messagesContainer.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 0.85rem;">
+              No messages yet. Say hello! 👋
+            </div>`;
+          return;
+        }
 
-        msgDiv.innerHTML = `
-          <div class="message-meta">
-            <span>${msg.sender}</span>
-            <span>•</span>
-            <span>${msg.timestamp}</span>
-          </div>
-          <div class="message-bubble">${escapeHTML(msg.text)}</div>
-        `;
+        messages.forEach(msg => {
+          const wrapper = document.createElement("div");
+          wrapper.className = `message-wrapper ${msg.sentByMe ? 'sent' : 'received'}`;
 
-        elements.messagesContainer.appendChild(msgDiv);
-      });
+          let contentHtml = '';
+          if (msg.text) {
+            contentHtml += `<div class="message-bubble">${sanitizeText(msg.text)}</div>`;
+          }
+          if (msg.gifUrl) {
+            contentHtml += `<img src="${msg.gifUrl}" class="message-media" alt="GIF" />`;
+          }
 
-      // Auto-scroll to bottom
-      elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
-    }
+          contentHtml += `<div class="message-time">${msg.timestamp}</div>`;
+          wrapper.innerHTML = contentHtml;
 
-    // Security Helper: Prevent HTML Injection
-    function escapeHTML(str) {
-      return str.replace(/[&<>'"]/g, 
-        tag => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          "'": '&#39;',
-          '"': '&quot;'
-        }[tag] || tag)
-      );
-    }
+          messagesContainer.appendChild(wrapper);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // XSS Prevention Sanitizer
+      function sanitizeText(str) {
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+      }
+    });
   </script>
 </body>
 </html>
