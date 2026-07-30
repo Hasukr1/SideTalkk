@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SideTalkk</title>
-  <!-- Crypto-JS for hashing passwords -->
+  <!-- Supabase JS Library & Crypto-JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
     :root {
@@ -174,7 +175,6 @@
     }
     .reply-btn:hover { color: var(--text); }
 
-    /* Active Reply Banner above input */
     .active-reply-bar {
       background: rgba(15, 23, 42, 0.9);
       border-top: 1px solid var(--border);
@@ -187,7 +187,6 @@
     }
     .active-reply-bar button { background: none; border: none; color: #ef4444; cursor: pointer; }
 
-    /* Footer & Inputs */
     .footer {
       padding: 16px 24px;
       background: rgba(11, 15, 25, 0.5);
@@ -215,7 +214,6 @@
       padding: 0 8px;
     }
 
-    /* Emoji Picker Box */
     .emoji-picker {
       position: absolute;
       bottom: 80px;
@@ -243,7 +241,6 @@
 
   <!-- AUTH OVERLAY -->
   <div class="auth-overlay" id="authOverlay">
-    <!-- LOGIN BOX -->
     <div class="auth-box" id="loginBox">
       <h2>SideTalkk Login</h2>
       <input type="text" id="loginUser" class="auth-input" placeholder="Username">
@@ -252,7 +249,6 @@
       <div class="auth-switch" onclick="toggleAuth(true)">Don't have an account? Register</div>
     </div>
 
-    <!-- REGISTER BOX -->
     <div class="auth-box" id="regBox" style="display: none;">
       <h2>Register</h2>
       <input type="text" id="regUser" class="auth-input" placeholder="Username">
@@ -282,7 +278,6 @@
       <button onclick="cancelReply()">✕</button>
     </div>
 
-    <!-- EMOJI PICKER MENU -->
     <div class="emoji-picker" id="emojiPicker">
       <span>😀</span><span>😂</span><span>🔥</span><span>❤️</span><span>👍</span>
       <span>😎</span><span>💀</span><span>🎉</span><span>😭</span><span>✨</span>
@@ -295,34 +290,27 @@
     </form>
   </div>
 
-  <!-- FIREBASE MODULE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  <script>
+    const SUPABASE_URL = "https://tuaqfedssagapneldepn.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_crXYWwNe4TRDJKxEM7Cuvw_cJS-20Vz";
 
-    // REPLACE THIS WITH YOUR FIREBASE DATABASE URL FROM YOUR FIREBASE CONSOLE!
-    const firebaseConfig = {
-      databaseURL: "https://simple-chat-e1a19-default-rtdb.firebaseio.com"
-    };
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let currentUser = localStorage.getItem('st_user') || null;
+    let currentUser = localStorage.getItem('st_user');
     let selectedReply = null;
 
     if (currentUser) {
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('currentUserName').innerText = currentUser;
+      loadHistory();
+      listenRealtime();
     }
 
-    // Toggle Login/Register screens
-    window.toggleAuth = (showReg) => {
+    function toggleAuth(showReg) {
       document.getElementById('loginBox').style.display = showReg ? 'none' : 'flex';
       document.getElementById('regBox').style.display = showReg ? 'flex' : 'none';
-    };
+    }
 
-    // Hash Password
     function hash(text) {
       return CryptoJS.SHA256(text).toString();
     }
@@ -333,14 +321,14 @@
       const pass = document.getElementById('regPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
 
-      const userRef = ref(db, 'users/' + user);
-      const snapshot = await get(userRef);
+      const { data: existing } = await supabase.from('users').select('username').eq('username', user).single();
 
-      if (snapshot.exists()) {
+      if (existing) {
         alert("Username already taken!");
       } else {
-        await push(userRef, { password: hash(pass) });
-        alert("Account created! Logging you in...");
+        const { error } = await supabase.from('users').insert([{ username: user, password: hash(pass) }]);
+        if (error) return alert("Error registering user!");
+        alert("Account created!");
         loginUser(user);
       }
     };
@@ -351,11 +339,10 @@
       const pass = document.getElementById('loginPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
 
-      const snapshot = await get(child(ref(db), 'users/' + user));
+      const { data: foundUser } = await supabase.from('users').select('*').eq('username', user).single();
 
-      if (snapshot.exists()) {
-        const data = Object.values(snapshot.val())[0];
-        if (data.password === hash(pass)) {
+      if (foundUser) {
+        if (foundUser.password === hash(pass)) {
           loginUser(user);
         } else {
           alert("Incorrect password!");
@@ -370,12 +357,15 @@
       localStorage.setItem('st_user', user);
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('currentUserName').innerText = currentUser;
+      document.getElementById('chatBox').innerHTML = '';
+      loadHistory();
+      listenRealtime();
     }
 
-    window.logout = () => {
+    function logout() {
       localStorage.removeItem('st_user');
       location.reload();
-    };
+    }
 
     // EMOJI TOGGLE
     const emojiPicker = document.getElementById('emojiPicker');
@@ -391,56 +381,58 @@
     });
 
     // REPLY SYSTEM
-    window.startReply = (user, text) => {
+    function startReply(user, text) {
       selectedReply = { user, text };
       document.getElementById('replyBar').style.display = 'flex';
       document.getElementById('replyText').innerText = `Replying to ${user}: "${text.substring(0, 25)}..."`;
-    };
+    }
 
-    window.cancelReply = () => {
+    function cancelReply() {
       selectedReply = null;
       document.getElementById('replyBar').style.display = 'none';
-    };
+    }
 
     // SEND MESSAGE
-    document.getElementById('chatForm').onsubmit = (e) => {
+    document.getElementById('chatForm').onsubmit = async (e) => {
       e.preventDefault();
       if (!currentUser) return alert("Log in first!");
       const input = document.getElementById('msgInput');
       const text = input.value.trim();
       if (!text) return;
 
-      push(ref(db, 'messages'), {
-        user: currentUser,
+      const payload = {
+        username: currentUser,
         text: text,
-        reply: selectedReply,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
+        reply_user: selectedReply ? selectedReply.user : null,
+        reply_text: selectedReply ? selectedReply.text : null
+      };
 
       input.value = '';
       cancelReply();
+
+      await supabase.from('messages').insert([payload]);
     };
 
-    // LOAD LIVE MESSAGES
-    onChildAdded(ref(db, 'messages'), (snapshot) => {
-      const data = snapshot.val();
-      const isMe = data.user === currentUser;
+    // RENDER MESSAGE BUBBLE
+    function renderMessage(msg) {
+      const isMe = msg.username === currentUser;
+      const timeStr = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      const replyHTML = data.reply ? `<div class="reply-preview-bubble"><strong>${data.reply.user}:</strong> ${data.reply.text}</div>` : '';
+      const replyHTML = msg.reply_user ? `<div class="reply-preview-bubble"><strong>${msg.reply_user}:</strong> ${msg.reply_text}</div>` : '';
 
       const msgHTML = `
         <div class="msg-group ${isMe ? 'sent' : 'received'}">
-          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${data.user}" class="msg-avatar">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=${msg.username}" class="msg-avatar">
           <div class="msg-body">
             <div class="msg-meta">
-              <span>${data.user}</span>
-              <span>${data.time}</span>
+              <span>${msg.username}</span>
+              <span>${timeStr}</span>
             </div>
             <div class="bubble">
               ${replyHTML}
-              ${data.text}
+              ${msg.text}
             </div>
-            <div class="reply-btn" onclick="startReply('${data.user}', '${data.text.replace(/'/g, "\\'")}')">↩ Reply</div>
+            <div class="reply-btn" onclick="startReply('${msg.username}', '${msg.text.replace(/'/g, "\\'")}')">↩ Reply</div>
           </div>
         </div>
       `;
@@ -448,7 +440,25 @@
       const chatBox = document.getElementById('chatBox');
       chatBox.insertAdjacentHTML('beforeend', msgHTML);
       chatBox.scrollTop = chatBox.scrollHeight;
-    });
+    }
+
+    // LOAD ALL HISTORICAL MESSAGES
+    async function loadHistory() {
+      const { data: messages } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
+      if (messages) {
+        messages.forEach(renderMessage);
+      }
+    }
+
+    // SUBSCRIBE TO REALTIME MESSAGES
+    function listenRealtime() {
+      supabase
+        .channel('public:messages')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+          renderMessage(payload.new);
+        })
+        .subscribe();
+    }
   </script>
 </body>
 </html>
