@@ -133,13 +133,46 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.8rem;
+    }
+
+    .online-badge {
+      font-size: 0.75rem;
+      background: var(--msg-received);
+      color: var(--text-main);
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
     }
 
     .user-tag {
       font-size: 0.85rem;
       color: var(--text-muted);
       font-weight: 600;
+    }
+
+    /* Animated Theme Toggle Button */
+    .theme-toggle-btn {
+      background: var(--msg-received);
+      border: 1px solid var(--border);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease, border 0.3s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .theme-toggle-btn.rotate {
+      transform: rotate(360deg) scale(1);
     }
 
     /* Messages Display */
@@ -157,6 +190,7 @@
       flex-direction: column;
       max-width: 75%;
       animation: fadeIn 0.2s ease-in-out;
+      position: relative;
     }
 
     @keyframes fadeIn {
@@ -179,6 +213,27 @@
       color: var(--text-muted);
       margin-bottom: 0.2rem;
       padding: 0 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .message-actions-triggers {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn-trigger {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 0.7rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .action-btn-trigger:hover {
+      text-decoration: underline;
     }
 
     .message-bubble {
@@ -188,6 +243,7 @@
       line-height: 1.4;
       word-break: break-word;
       cursor: pointer;
+      position: relative;
     }
 
     .message.sent .message-bubble {
@@ -202,11 +258,59 @@
       border-bottom-left-radius: 4px;
     }
 
+    .edited-tag {
+      font-size: 0.7rem;
+      opacity: 0.75;
+      margin-left: 0.3rem;
+    }
+
+    /* Quoted Reply box inside message bubble */
+    .quoted-reply {
+      background: rgba(0, 0, 0, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-bottom: 0.4rem;
+      opacity: 0.9;
+    }
+
     .message-bubble img.gif-img {
       max-width: 200px;
       border-radius: 12px;
       display: block;
       margin-top: 0.3rem;
+    }
+
+    /* Message Reactions Container */
+    .message-reactions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+    }
+
+    .reaction-pill {
+      background: var(--msg-received);
+      border: 1px solid var(--border);
+      padding: 0.15rem 0.45rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .reaction-pill:hover {
+      transform: scale(1.05);
+    }
+
+    .reaction-pill.user-reacted {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: var(--accent);
     }
 
     /* Toolbar for Emojis & GIFs */
@@ -239,6 +343,38 @@
 
     .tool-btn:hover {
       background: var(--msg-received);
+    }
+
+    /* Reply / Edit Preview Banner above input */
+    .preview-bar {
+      display: none;
+      background: var(--toolbar-bg);
+      padding: 0.5rem 1rem;
+      border-top: 1px solid var(--border);
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .preview-content {
+      color: var(--text-muted);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .cancel-preview-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 0 0.4rem;
+    }
+
+    .cancel-preview-btn:hover {
+      color: var(--text-main);
     }
 
     /* Input Controls */
@@ -285,7 +421,7 @@
     .gif-modal {
       display: none;
       position: absolute;
-      bottom: 70px;
+      bottom: 110px;
       left: 1rem;
       right: 1rem;
       background: var(--card-bg);
@@ -318,7 +454,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
-      max-height: 250px;
+      max-height: 220px;
       overflow-y: auto;
     }
 
@@ -333,6 +469,119 @@
 
     .gif-grid img:hover {
       transform: scale(1.05);
+    }
+
+    /* Toggleable Full Emoji Picker Popup */
+    .emoji-picker-modal {
+      display: none;
+      position: absolute;
+      bottom: 110px;
+      left: 1rem;
+      right: 1rem;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+      z-index: 100;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .emoji-picker-category {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin: 0.5rem 0 0.3rem 0;
+      text-transform: uppercase;
+    }
+
+    .emoji-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.3rem;
+    }
+
+    .emoji-picker-item {
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 0.3rem;
+      border-radius: 8px;
+      transition: background 0.1s, transform 0.1s;
+      text-align: center;
+    }
+
+    .emoji-picker-item:hover {
+      background: var(--msg-received);
+      transform: scale(1.15);
+    }
+
+    /* Reaction & Action Popups */
+    .reaction-popup {
+      display: none;
+      position: absolute;
+      bottom: 105%;
+      left: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      border-radius: 20px;
+      padding: 0.3rem 0.6rem;
+      gap: 0.4rem;
+      z-index: 50;
+      align-items: center;
+    }
+
+    .reaction-popup button {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .reaction-popup button:hover {
+      transform: scale(1.25);
+    }
+
+    /* Message Options Menu (Edit / Delete) */
+    .options-popup {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      border-radius: 12px;
+      padding: 0.3rem;
+      z-index: 50;
+      min-width: 130px;
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .options-popup button {
+      background: none;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      text-align: left;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .options-popup button:hover {
+      background: var(--msg-received);
+    }
+
+    .options-popup button.danger {
+      color: #ef4444;
     }
   </style>
 </head>
@@ -354,16 +603,17 @@
     <header class="chat-header">
       <div class="brand-title">SideTalk</div>
       <div class="header-actions">
+        <div id="onlineBadge" class="online-badge">🟢 0 Online</div>
         <div class="user-tag" id="displayUserTag">User</div>
-        <!-- Theme Toggle Button -->
-        <button id="themeToggleBtn" class="tool-btn" title="Toggle Theme">🌓</button>
+        <!-- Animated Theme Toggle Button -->
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme">🌙</button>
       </div>
     </header>
 
     <!-- Message Area -->
     <div id="messagesContainer" class="messages-container"></div>
 
-    <!-- Quick Tool Bar with Emojis -->
+    <!-- Quick Tool Bar with Emojis & Full Emoji Picker Toggle -->
     <div class="quick-toolbar">
       <button class="tool-btn" data-emoji="😊">😊</button>
       <button class="tool-btn" data-emoji="😂">😂</button>
@@ -373,12 +623,34 @@
       <button class="tool-btn" data-emoji="👍">👍</button>
       <button class="tool-btn" data-emoji="❤️">❤️</button>
       <button class="tool-btn" data-emoji="✨">✨</button>
-      <button class="tool-btn" data-emoji="👀">👀</button>
-      <button class="tool-btn" data-emoji="🎉">🎉</button>
-      <button class="tool-btn" data-emoji="🤔">🤔</button>
-      <button class="tool-btn" data-emoji="😅">😅</button>
-      <button class="tool-btn" data-emoji="💯">💯</button>
+      <button id="emojiPickerToggleBtn" class="tool-btn" title="Toggle All Emojis" style="font-size:1rem; font-weight:bold; background:var(--msg-received); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:8px;">😀 All Emojis</button>
       <button id="gifToggleBtn" class="tool-btn" style="font-size:0.85rem; font-weight:bold; background:var(--accent); color:white; padding:0.3rem 0.6rem; margin-left: auto;">GIF</button>
+    </div>
+
+    <!-- Full Toggleable Emoji Picker Popup -->
+    <div id="emojiPickerModal" class="emoji-picker-modal">
+      <div class="emoji-picker-category">Smileys & Emotion</div>
+      <div class="emoji-picker-grid">
+        <button class="emoji-picker-item">😀</button><button class="emoji-picker-item">😃</button><button class="emoji-picker-item">😄</button><button class="emoji-picker-item">😁</button><button class="emoji-picker-item">😆</button><button class="emoji-picker-item">😅</button><button class="emoji-picker-item">🤣</button><button class="emoji-picker-item">😂</button>
+        <button class="emoji-picker-item">🙂</button><button class="emoji-picker-item">🙃</button><button class="emoji-picker-item">😉</button><button class="emoji-picker-item">😊</button><button class="emoji-picker-item">😇</button><button class="emoji-picker-item">🥰</button><button class="emoji-picker-item">😍</button><button class="emoji-picker-item">🤩</button>
+        <button class="emoji-picker-item">😘</button><button class="emoji-picker-item">😗</button><button class="emoji-picker-item">😚</button><button class="emoji-picker-item">😙</button><button class="emoji-picker-item">😋</button><button class="emoji-picker-item">😛</button><button class="emoji-picker-item">😜</button><button class="emoji-picker-item">🤪</button>
+        <button class="emoji-picker-item">😎</button><button class="emoji-picker-item">🤓</button><button class="emoji-picker-item">🧐</button><button class="emoji-picker-item">🥳</button><button class="emoji-picker-item">😏</button><button class="emoji-picker-item">😒</button><button class="emoji-picker-item">😞</button><button class="emoji-picker-item">😔</button>
+      </div>
+      
+      <div class="emoji-picker-category">Gestures & People</div>
+      <div class="emoji-picker-grid">
+        <button class="emoji-picker-item">👋</button><button class="emoji-picker-item">🤚</button><button class="emoji-picker-item">🖐️</button><button class="emoji-picker-item">✋</button><button class="emoji-picker-item">🖖</button><button class="emoji-picker-item">👌</button><button class="emoji-picker-item">🤌</button><button class="emoji-picker-item">🤏</button>
+        <button class="emoji-picker-item">✌️</button><button class="emoji-picker-item">🤞</button><button class="emoji-picker-item">🤟</button><button class="emoji-picker-item">🤘</button><button class="emoji-picker-item">🤙</button><button class="emoji-picker-item">👈</button><button class="emoji-picker-item">👉</button><button class="emoji-picker-item">👆</button>
+        <button class="emoji-picker-item">👍</button><button class="emoji-picker-item">👎</button><button class="emoji-picker-item">✊</button><button class="emoji-picker-item">👊</button><button class="emoji-picker-item">🤛</button><button class="emoji-picker-item">🤜</button><button class="emoji-picker-item">👏</button><button class="emoji-picker-item">🙌</button>
+        <button class="emoji-picker-item">👐</button><button class="emoji-picker-item">🤲</button><button class="emoji-picker-item">🤝</button><button class="emoji-picker-item">🙏</button><button class="emoji-picker-item">✍️</button><button class="emoji-picker-item">💪</button><button class="emoji-picker-item">🧠</button><button class="emoji-picker-item">👀</button>
+      </div>
+
+      <div class="emoji-picker-category">Hearts & Symbols</div>
+      <div class="emoji-picker-grid">
+        <button class="emoji-picker-item">❤️</button><button class="emoji-picker-item">🧡</button><button class="emoji-picker-item">💛</button><button class="emoji-picker-item">💚</button><button class="emoji-picker-item">💙</button><button class="emoji-picker-item">💜</button><button class="emoji-picker-item">🖤</button><button class="emoji-picker-item">🤍</button>
+        <button class="emoji-picker-item">🤎</button><button class="emoji-picker-item">💔</button><button class="emoji-picker-item">❤️‍🔥</button><button class="emoji-picker-item">💕</button><button class="emoji-picker-item">💞</button><button class="emoji-picker-item">💓</button><button class="emoji-picker-item">💗</button><button class="emoji-picker-item">💖</button>
+        <button class="emoji-picker-item">✨</button><button class="emoji-picker-item">⭐</button><button class="emoji-picker-item">🌟</button><button class="emoji-picker-item">💫</button><button class="emoji-picker-item">🔥</button><button class="emoji-picker-item">💥</button><button class="emoji-picker-item">💯</button><button class="emoji-picker-item">💀</button>
+      </div>
     </div>
 
     <!-- GIF Selection Popup -->
@@ -393,6 +665,12 @@
       <div class="gif-grid" id="gifGrid"></div>
     </div>
 
+    <!-- Preview Bar for Replying or Editing -->
+    <div id="previewBar" class="preview-bar">
+      <div class="preview-content" id="previewText">Replying or editing...</div>
+      <button id="cancelPreviewBtn" class="cancel-preview-btn">&times;</button>
+    </div>
+
     <!-- Bottom Input -->
     <footer class="input-area">
       <input type="text" id="messageInput" class="chat-input" placeholder="Type a message..." autocomplete="off" />
@@ -404,7 +682,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-    import { getDatabase, ref, push, onValue, get, set } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, get, set, remove, onDisconnect, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
@@ -421,8 +699,8 @@
     const analytics = getAnalytics(app);
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
+    const usersRef = ref(db, 'users');
 
-    // Profanity, Slur, and Inappropriate Word Filter List
     const blockedWords = [
       "fuck", "shit", "bitch", "asshole", "cunt", "nigger", "nigga", 
       "faggot", "retard", "whore", "slut", "dick", "pussy", "cock", 
@@ -459,7 +737,10 @@
     const state = {
       user: localStorage.getItem('sidetalk_user') || '',
       theme: localStorage.getItem('sidetalk_theme') || 'light',
-      messages: []
+      messages: [],
+      replyingTo: null,
+      editingMsgId: null,
+      deletedForMe: JSON.parse(localStorage.getItem('sidetalk_deleted_for_me') || '[]')
     };
 
     const elements = {
@@ -468,6 +749,7 @@
       loginUsernameInput: document.getElementById('loginUsernameInput'),
       loginBtn: document.getElementById('loginBtn'),
       displayUserTag: document.getElementById('displayUserTag'),
+      onlineBadge: document.getElementById('onlineBadge'),
       messagesContainer: document.getElementById('messagesContainer'),
       messageInput: document.getElementById('messageInput'),
       sendBtn: document.getElementById('sendBtn'),
@@ -476,11 +758,17 @@
       gifGrid: document.getElementById('gifGrid'),
       gifLinkInput: document.getElementById('gifLinkInput'),
       sendGifLinkBtn: document.getElementById('sendGifLinkBtn'),
-      themeToggleBtn: document.getElementById('themeToggleBtn')
+      themeToggleBtn: document.getElementById('themeToggleBtn'),
+      previewBar: document.getElementById('previewBar'),
+      previewText: document.getElementById('previewText'),
+      cancelPreviewBtn: document.getElementById('cancelPreviewBtn'),
+      emojiPickerToggleBtn: document.getElementById('emojiPickerToggleBtn'),
+      emojiPickerModal: document.getElementById('emojiPickerModal')
     };
 
     document.addEventListener('DOMContentLoaded', () => {
       document.body.setAttribute('data-theme', state.theme);
+      elements.themeToggleBtn.textContent = state.theme === 'dark' ? '☀️' : '🌙';
 
       if (state.user) {
         startChatSession(state.user);
@@ -488,6 +776,7 @@
 
       setupListeners();
       loadGIFs();
+      listenForOnlineUsers();
     });
 
     function setupListeners() {
@@ -499,28 +788,51 @@
       elements.themeToggleBtn.addEventListener('click', () => {
         const currentTheme = document.body.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('sidetalk_theme', newTheme);
+
+        elements.themeToggleBtn.classList.add('rotate');
+        elements.themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        setTimeout(() => elements.themeToggleBtn.classList.remove('rotate'), 400);
       });
 
-      elements.sendBtn.addEventListener('click', () => sendTextMessage());
+      elements.sendBtn.addEventListener('click', () => handleMainAction());
       elements.messageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
-          sendTextMessage();
+          handleMainAction();
         }
       });
 
-      document.querySelectorAll('.tool-btn[data-emoji]').forEach(btn => {
+      // Quick toolbar emojis
+      document.querySelectorAll('.quick-toolbar .tool-btn[data-emoji]').forEach(btn => {
         btn.addEventListener('click', () => {
           elements.messageInput.value += btn.dataset.emoji;
           elements.messageInput.focus();
         });
       });
 
+      // Full Emoji Picker Toggle
+      elements.emojiPickerToggleBtn.addEventListener('click', () => {
+        const isVisible = elements.emojiPickerModal.style.display === 'block';
+        elements.emojiPickerModal.style.display = isVisible ? 'none' : 'block';
+        elements.gifModal.style.display = 'none';
+      });
+
+      // Full Emoji Picker item click
+      document.querySelectorAll('.emoji-picker-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          elements.messageInput.value += btn.textContent;
+          elements.messageInput.focus();
+          elements.emojiPickerModal.style.display = 'none';
+        });
+      });
+
       elements.gifToggleBtn.addEventListener('click', () => {
         const isVisible = elements.gifModal.style.display === 'block';
         elements.gifModal.style.display = isVisible ? 'none' : 'block';
+        elements.emojiPickerModal.style.display = 'none';
       });
 
       elements.sendGifLinkBtn.addEventListener('click', () => {
@@ -529,6 +841,23 @@
           sendGIFMessage(url);
           elements.gifLinkInput.value = '';
           elements.gifModal.style.display = 'none';
+        }
+      });
+
+      elements.cancelPreviewBtn.addEventListener('click', () => {
+        clearActiveState();
+      });
+
+      // Close popups when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.emoji-picker-modal') && !e.target.closest('#emojiPickerToggleBtn') &&
+            !e.target.closest('.gif-modal') && !e.target.closest('#gifToggleBtn') && 
+            !e.target.closest('.reaction-popup') && !e.target.closest('.options-popup') &&
+            !e.target.closest('.action-btn-trigger')) {
+          elements.emojiPickerModal.style.display = 'none';
+          elements.gifModal.style.display = 'none';
+          document.querySelectorAll('.reaction-popup').forEach(p => p.style.display = 'none');
+          document.querySelectorAll('.options-popup').forEach(p => p.style.display = 'none');
         }
       });
     }
@@ -540,13 +869,11 @@
         return;
       }
 
-      // Check profanity / slurs in nickname
       if (containsProfanity(name)) {
         alert("This nickname contains restricted words, profanity, or slurs.");
         return;
       }
 
-      // Check if username is already taken in Firebase
       try {
         const userRef = ref(db, 'users/' + name);
         const snapshot = await get(userRef);
@@ -554,8 +881,8 @@
           alert("This username is already taken by someone online! Please choose a different nickname.");
           return;
         }
-        // Register user in database
         await set(userRef, { online: true, lastLogin: Date.now() });
+        onDisconnect(userRef).remove();
       } catch (err) {
         console.error(err);
       }
@@ -572,6 +899,14 @@
       listenForFirebaseMessages();
     }
 
+    function listenForOnlineUsers() {
+      onValue(usersRef, (snapshot) => {
+        const data = snapshot.val();
+        const count = data ? Object.keys(data).length : 0;
+        elements.onlineBadge.textContent = `🟢 ${count} Online`;
+      });
+    }
+
     function loadGIFs() {
       elements.gifGrid.innerHTML = '';
       presetGIFs.forEach(url => {
@@ -585,7 +920,31 @@
       });
     }
 
-    function sendTextMessage() {
+    function setReplyState(sender, text) {
+      state.editingMsgId = null;
+      state.replyingTo = { sender, text };
+      elements.previewText.textContent = `Replying to ${sender}: ${text}`;
+      elements.previewBar.style.display = 'flex';
+      elements.messageInput.focus();
+    }
+
+    function setEditState(msgId, currentText) {
+      state.replyingTo = null;
+      state.editingMsgId = msgId;
+      elements.messageInput.value = currentText;
+      elements.previewText.textContent = `Editing message: ${currentText}`;
+      elements.previewBar.style.display = 'flex';
+      elements.messageInput.focus();
+    }
+
+    function clearActiveState() {
+      state.replyingTo = null;
+      state.editingMsgId = null;
+      elements.messageInput.value = '';
+      elements.previewBar.style.display = 'none';
+    }
+
+    function handleMainAction() {
       const text = elements.messageInput.value.trim();
       if (!text) return;
 
@@ -594,8 +953,24 @@
         return;
       }
 
-      pushMessageToFirebase({ text: text, type: 'text' });
-      elements.messageInput.value = '';
+      if (state.editingMsgId) {
+        // Edit existing message in Firebase
+        const msgRef = ref(db, `messages/${state.editingMsgId}`);
+        update(msgRef, { text: text, edited: true }).then(() => {
+          clearActiveState();
+        }).catch(err => {
+          alert("Failed to edit message: " + err.message);
+        });
+      } else {
+        // Send new text message
+        const payload = { text: text, type: 'text' };
+        if (state.replyingTo) {
+          payload.replyTo = state.replyingTo;
+        }
+        pushMessageToFirebase(payload);
+        elements.messageInput.value = '';
+        clearActiveState();
+      }
     }
 
     function sendGIFMessage(url) {
@@ -603,7 +978,13 @@
         alert("Invalid link.");
         return;
       }
-      pushMessageToFirebase({ url: url, type: 'gif' });
+      const payload = { url: url, type: 'gif' };
+      if (state.replyingTo) {
+        payload.replyTo = state.replyingTo;
+      }
+
+      pushMessageToFirebase(payload);
+      clearActiveState();
     }
 
     function pushMessageToFirebase(payload) {
@@ -620,8 +1001,42 @@
       });
     }
 
+    function deleteForEveryone(msgId) {
+      if (confirm("Delete this message for everyone?")) {
+        remove(ref(db, `messages/${msgId}`)).catch(err => {
+          alert("Failed to delete: " + err.message);
+        });
+      }
+    }
+
+    function deleteForMe(msgId) {
+      state.deletedForMe.push(msgId);
+      localStorage.setItem('sidetalk_deleted_for_me', JSON.stringify(state.deletedForMe));
+      renderMessages();
+    }
+
+    function toggleReaction(msgId, emoji) {
+      const reactionsRef = ref(db, `messages/${msgId}/reactions`);
+      get(reactionsRef).then((snapshot) => {
+        let reactions = snapshot.exists() ? snapshot.val() : {};
+        if (!reactions[emoji]) {
+          reactions[emoji] = {};
+        }
+
+        if (reactions[emoji][state.user]) {
+          delete reactions[emoji][state.user];
+          if (Object.keys(reactions[emoji]).length === 0) {
+            delete reactions[emoji];
+          }
+        } else {
+          reactions[emoji][state.user] = true;
+        }
+
+        set(reactionsRef, reactions);
+      });
+    }
+
     function listenForFirebaseMessages() {
-      // Clean listener without recursive loops to fix duplication
       onValue(messagesRef, (snapshot) => {
         const data = snapshot.val();
         state.messages = [];
@@ -645,21 +1060,155 @@
       elements.messagesContainer.innerHTML = '';
 
       state.messages.forEach(msg => {
+        // Skip if deleted locally by user
+        if (state.deletedForMe.includes(msg.id)) return;
+
         const isMe = msg.sender === state.user;
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+
+        let replyHTML = '';
+        if (msg.replyTo) {
+          replyHTML = `
+            <div class="quoted-reply">
+              <strong>@${escapeHTML(msg.replyTo.sender)}</strong>: ${escapeHTML(msg.replyTo.text)}
+            </div>
+          `;
+        }
 
         let contentHTML = '';
         if (msg.type === 'gif') {
           contentHTML = `<img src="${msg.url}" class="gif-img" alt="GIF/Image" />`;
         } else {
-          contentHTML = escapeHTML(msg.text);
+          const editedLabel = msg.edited ? `<span class="edited-tag">(edited)</span>` : '';
+          contentHTML = `${escapeHTML(msg.text)}${editedLabel}`;
+        }
+
+        // Render Reactions HTML
+        let reactionsHTML = '';
+        if (msg.reactions) {
+          reactionsHTML = '<div class="message-reactions">';
+          Object.keys(msg.reactions).forEach(emoji => {
+            const usersObj = msg.reactions[emoji];
+            const count = Object.keys(usersObj).length;
+            const userReacted = usersObj[state.user] ? 'user-reacted' : '';
+            reactionsHTML += `
+              <div class="reaction-pill ${userReacted}" data-emoji="${emoji}">
+                <span>${emoji}</span> <span>${count}</span>
+              </div>
+            `;
+          });
+          reactionsHTML += '</div>';
+        }
+
+        // Build options menu based on ownership
+        let optionsButtonsHTML = `<button class="delete-me-btn">Delete for me</button>`;
+        if (isMe && msg.type === 'text') {
+          optionsButtonsHTML = `
+            <button class="edit-msg-btn">Edit</button>
+            <button class="delete-everyone-btn danger">Delete for everyone</button>
+            <button class="delete-me-btn">Delete for me</button>
+          `;
+        } else if (isMe && msg.type === 'gif') {
+          optionsButtonsHTML = `
+            <button class="delete-everyone-btn danger">Delete for everyone</button>
+            <button class="delete-me-btn">Delete for me</button>
+          `;
         }
 
         msgDiv.innerHTML = `
-          <div class="message-info">${msg.sender} • ${msg.timestamp}</div>
-          <div class="message-bubble" title="Double-click to copy message">${contentHTML}</div>
+          <div class="message-info">
+            <span>${msg.sender} • ${msg.timestamp}</span>
+            <div class="message-actions-triggers">
+              <button class="action-btn-trigger react-trigger">React</button>
+              <button class="action-btn-trigger reply-btn-trigger">Reply</button>
+              <button class="action-btn-trigger options-trigger">⋮</button>
+            </div>
+          </div>
+          <div class="message-bubble" title="Double-click to copy message">
+            ${replyHTML}${contentHTML}
+            <div class="reaction-popup">
+              <button data-emoji="👍">👍</button>
+              <button data-emoji="❤️">❤️</button>
+              <button data-emoji="😂">😂</button>
+              <button data-emoji="🔥">🔥</button>
+              <button data-emoji="💀">💀</button>
+            </div>
+            <div class="options-popup">
+              ${optionsButtonsHTML}
+            </div>
+          </div>
+          ${reactionsHTML}
         `;
+
+        // Wire up Reply button
+        const replyBtn = msgDiv.querySelector('.reply-btn-trigger');
+        replyBtn.addEventListener('click', () => {
+          const snippet = msg.type === 'gif' ? '[GIF/Image]' : msg.text;
+          setReplyState(msg.sender, snippet);
+        });
+
+        // Wire up React trigger popup
+        const reactTrigger = msgDiv.querySelector('.react-trigger');
+        const reactionPopup = msgDiv.querySelector('.reaction-popup');
+        reactTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.reaction-popup').forEach(p => { if (p !== reactionPopup) p.style.display = 'none'; });
+          document.querySelectorAll('.options-popup').forEach(p => p.style.display = 'none');
+          reactionPopup.style.display = reactionPopup.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Wire up Options trigger popup
+        const optionsTrigger = msgDiv.querySelector('.options-trigger');
+        const optionsPopup = msgDiv.querySelector('.options-popup');
+        optionsTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.options-popup').forEach(p => { if (p !== optionsPopup) p.style.display = 'none'; });
+          document.querySelectorAll('.reaction-popup').forEach(p => p.style.display = 'none');
+          optionsPopup.style.display = optionsPopup.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Edit button
+        const editBtn = msgDiv.querySelector('.edit-msg-btn');
+        if (editBtn) {
+          editBtn.addEventListener('click', () => {
+            optionsPopup.style.display = 'none';
+            setEditState(msg.id, msg.text);
+          });
+        }
+
+        // Delete for everyone button
+        const deleteEveryoneBtn = msgDiv.querySelector('.delete-everyone-btn');
+        if (deleteEveryoneBtn) {
+          deleteEveryoneBtn.addEventListener('click', () => {
+            optionsPopup.style.display = 'none';
+            deleteForEveryone(msg.id);
+          });
+        }
+
+        // Delete for me button
+        const deleteMeBtn = msgDiv.querySelector('.delete-me-btn');
+        if (deleteMeBtn) {
+          deleteMeBtn.addEventListener('click', () => {
+            optionsPopup.style.display = 'none';
+            deleteForMe(msg.id);
+          });
+        }
+
+        // Wire up reaction popup emoji choices
+        reactionPopup.querySelectorAll('button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            toggleReaction(msg.id, btn.dataset.emoji);
+            reactionPopup.style.display = 'none';
+          });
+        });
+
+        // Wire up existing reaction pills to toggle vote
+        msgDiv.querySelectorAll('.reaction-pill').forEach(pill => {
+          pill.addEventListener('click', () => {
+            toggleReaction(msg.id, pill.dataset.emoji);
+          });
+        });
 
         if (msg.type === 'text') {
           const bubble = msgDiv.querySelector('.message-bubble');
@@ -679,6 +1228,7 @@
     }
 
     function escapeHTML(str) {
+      if (!str) return '';
       return str.replace(/[&<>'"]/g, tag => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
       }[tag] || tag));
