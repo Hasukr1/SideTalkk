@@ -275,7 +275,7 @@
         <button type="submit" class="btn" id="btnLogin">Log In</button>
       </form>
       <div class="auth-switch-container">
-        <span class="auth-switch" onclick="toggleAuth(true)">Don't have an account? Register</span>
+        <span class="auth-switch" onclick="toggleAuth('register')">Don't have an account? Register</span>
       </div>
     </div>
 
@@ -288,7 +288,7 @@
         <button type="submit" class="btn" id="btnReg">Create Account</button>
       </form>
       <div class="auth-switch-container">
-        <span class="auth-switch" onclick="toggleAuth(false)">Already have an account? Log In</span>
+        <span class="auth-switch" onclick="toggleAuth('login')">Already have an account? Log In</span>
       </div>
     </div>
 
@@ -342,9 +342,18 @@
       listenRealtime();
     }
 
-    function toggleAuth(showReg) {
-      document.getElementById('loginBox').style.display = showReg ? 'none' : 'flex';
-      document.getElementById('regBox').style.display = showReg ? 'flex' : 'none';
+    // AUTH SWITCH TOGGLE FIX
+    function toggleAuth(mode) {
+      const loginBox = document.getElementById('loginBox');
+      const regBox = document.getElementById('regBox');
+
+      if (mode === 'register') {
+        loginBox.style.setProperty('display', 'none', 'important');
+        regBox.style.setProperty('display', 'flex', 'important');
+      } else {
+        regBox.style.setProperty('display', 'none', 'important');
+        loginBox.style.setProperty('display', 'flex', 'important');
+      }
     }
 
     function hash(text) {
@@ -353,7 +362,7 @@
 
     // REGISTER ACCOUNT
     async function handleRegister(e) {
-      if (e) e.preventDefault();
+      e.preventDefault();
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
@@ -372,7 +381,7 @@
 
     // LOGIN ACCOUNT
     async function handleLogin(e) {
-      if (e) e.preventDefault();
+      e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
