@@ -6,7 +6,6 @@
   <title>SideTalk — Simple & Clean Live Chat</title>
   <style>
     :root {
-      /* Light Mode Variables */
       --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
       --card-bg: #ffffff;
       --text-main: #1e293b;
@@ -23,7 +22,6 @@
       --input-bg: #ffffff;
     }
 
-    /* Dark Mode Variables */
     [data-theme="dark"] {
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
       --card-bg: #1e293b;
@@ -55,6 +53,47 @@
       transition: background 0.3s ease;
     }
 
+    /* Auth / Login Overlay Screen */
+    .auth-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      padding: 2rem;
+      transition: background 0.3s ease;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .auth-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
     /* Floating Chat Shell */
     .chat-app {
       width: 100%;
@@ -63,7 +102,7 @@
       background: var(--card-bg);
       border-radius: 24px;
       box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
-      display: flex;
+      display: none; /* Hidden until login */
       flex-direction: column;
       overflow: hidden;
       border: 1px solid var(--border);
@@ -100,20 +139,7 @@
     .user-tag {
       font-size: 0.85rem;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .user-tag input {
-      border: none;
-      background: var(--msg-received);
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
       font-weight: 600;
-      color: var(--text-main);
-      outline: none;
-      width: 110px;
     }
 
     /* Messages Display */
@@ -203,8 +229,7 @@
       overflow-x: auto;
       white-space: nowrap;
     }
-    
-    /* Hide scrollbar for cleaner look */
+
     .quick-toolbar::-webkit-scrollbar {
       display: none;
     }
@@ -321,15 +346,23 @@
 </head>
 <body>
 
-  <div class="chat-app">
+  <!-- Login / Register Screen Menu -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-box">
+      <div class="auth-title">SideTalk</div>
+      <div class="auth-subtitle">Pick a nickname to jump straight into the live chatroom!</div>
+      <input type="text" id="loginUsernameInput" class="chat-input" placeholder="Enter your nickname..." maxlength="14" autocomplete="off" />
+      <button id="loginBtn" class="send-btn">Start Chatting</button>
+    </div>
+  </div>
+
+  <!-- Main Chat Container (Hidden Initially) -->
+  <div id="chatApp" class="chat-app">
     <!-- Header -->
     <header class="chat-header">
       <div class="brand-title">SideTalk</div>
       <div class="header-actions">
-        <div class="user-tag">
-          <span>You:</span>
-          <input type="text" id="usernameInput" value="Alex" maxlength="12" />
-        </div>
+        <div class="user-tag" id="displayUserTag">User</div>
         <!-- Theme Toggle Button -->
         <button id="themeToggleBtn" class="tool-btn" title="Toggle Theme">🌓</button>
       </div>
@@ -338,7 +371,7 @@
     <!-- Message Area -->
     <div id="messagesContainer" class="messages-container"></div>
 
-    <!-- Quick Tool Bar with Expanded Emojis -->
+    <!-- Quick Tool Bar with Emojis -->
     <div class="quick-toolbar">
       <button class="tool-btn" data-emoji="😊">😊</button>
       <button class="tool-btn" data-emoji="😂">😂</button>
@@ -360,7 +393,6 @@
     <div id="gifModal" class="gif-modal">
       <div style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-bottom:0.4rem;">Paste an Image/GIF Link or Pick Below</div>
       
-      <!-- Custom GIF Link Input -->
       <div class="gif-custom-link">
         <input type="text" id="gifLinkInput" class="chat-input" placeholder="Paste image/GIF URL..." autocomplete="off">
         <button id="sendGifLinkBtn" class="send-btn">Send</button>
@@ -382,7 +414,6 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
     import { getDatabase, ref, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
-    // Firebase configuration (Left completely untouched so your backend keeps working)
     const firebaseConfig = {
       apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
       authDomain: "sidetalkk.firebaseapp.com",
@@ -399,7 +430,6 @@
     const db = getDatabase(app);
     const messagesRef = ref(db, 'messages');
 
-    // Expanded Preset GIFs Library
     const presetGIFs = [
       "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3A5MHFvZzN2ZjB1dDJzbHN4ZmprZjBiaThseXlyM3Y1bWV0dDNwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif",
       "https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif",
@@ -419,13 +449,17 @@
     ];
 
     const state = {
-      user: localStorage.getItem('sidetalk_user') || 'User_' + Math.floor(Math.random() * 100),
+      user: localStorage.getItem('sidetalk_user') || '',
       theme: localStorage.getItem('sidetalk_theme') || 'light',
       messages: []
     };
 
     const elements = {
-      usernameInput: document.getElementById('usernameInput'),
+      authScreen: document.getElementById('authScreen'),
+      chatApp: document.getElementById('chatApp'),
+      loginUsernameInput: document.getElementById('loginUsernameInput'),
+      loginBtn: document.getElementById('loginBtn'),
+      displayUserTag: document.getElementById('displayUserTag'),
       messagesContainer: document.getElementById('messagesContainer'),
       messageInput: document.getElementById('messageInput'),
       sendBtn: document.getElementById('sendBtn'),
@@ -438,17 +472,24 @@
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      elements.usernameInput.value = state.user;
-      
-      // Apply saved theme on load
       document.body.setAttribute('data-theme', state.theme);
+
+      // If user already logged in previously, skip menu automatically!
+      if (state.user) {
+        startChatSession(state.user);
+      }
 
       setupListeners();
       loadGIFs();
-      listenForFirebaseMessages();
     });
 
     function setupListeners() {
+      // Login Button Click
+      elements.loginBtn.addEventListener('click', () => handleLogin());
+      elements.loginUsernameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleLogin();
+      });
+
       // Theme Toggle Logic
       elements.themeToggleBtn.addEventListener('click', () => {
         const currentTheme = document.body.getAttribute('data-theme');
@@ -464,12 +505,6 @@
           e.preventDefault();
           sendTextMessage();
         }
-      });
-
-      // User name changes
-      elements.usernameInput.addEventListener('change', (e) => {
-        state.user = e.target.value.trim() || 'User_' + Math.floor(Math.random() * 100);
-        localStorage.setItem('sidetalk_user', state.user);
       });
 
       // Quick Emoji insertion
@@ -495,6 +530,24 @@
           elements.gifModal.style.display = 'none';
         }
       });
+    }
+
+    function handleLogin() {
+      const name = elements.loginUsernameInput.value.trim();
+      if (!name) {
+        alert("Please enter a valid nickname!");
+        return;
+      }
+      state.user = name;
+      localStorage.setItem('sidetalk_user', name);
+      startChatSession(name);
+    }
+
+    function startChatSession(username) {
+      elements.authScreen.style.display = 'none';
+      elements.chatApp.style.display = 'flex';
+      elements.displayUserTag.textContent = username;
+      listenForFirebaseMessages();
     }
 
     function loadGIFs() {
@@ -547,7 +600,6 @@
             const msgObj = { id: key, ...data[key] };
             state.messages.push(msgObj);
             
-            // Handle Seen Status
             const seenList = msgObj.seenBy || [];
             if (!seenList.includes(state.user)) {
               markMessageAsSeen(key, seenList);
@@ -599,14 +651,12 @@
           ${seenHTML}
         `;
 
-        // Add double-click to copy functionality for text messages
         if (msg.type === 'text') {
           const bubble = msgDiv.querySelector('.message-bubble');
           bubble.addEventListener('dblclick', () => {
             navigator.clipboard.writeText(msg.text).then(() => {
-              // Quick visual feedback
               const originalColor = bubble.style.backgroundColor;
-              bubble.style.backgroundColor = '#10b981'; // Green flash
+              bubble.style.backgroundColor = '#10b981';
               setTimeout(() => bubble.style.backgroundColor = originalColor, 300);
             });
           });
