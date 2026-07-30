@@ -57,12 +57,6 @@
 
     .auth-box h2 { text-align: center; color: var(--text); }
 
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
     .auth-input {
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--border);
@@ -93,7 +87,7 @@
 
     .auth-switch-container {
       text-align: center;
-      margin-top: 8px;
+      margin-top: 4px;
     }
 
     .auth-switch-btn {
@@ -271,11 +265,9 @@
     <!-- LOGIN BOX -->
     <div class="auth-box" id="loginBox">
       <h2>SideTalkk Login</h2>
-      <form class="auth-form" id="loginForm">
-        <input type="text" id="loginUser" class="auth-input" placeholder="Username" required autocomplete="username">
-        <input type="password" id="loginPass" class="auth-input" placeholder="Password" required autocomplete="current-password">
-        <button type="submit" class="btn" id="btnLogin">Log In</button>
-      </form>
+      <input type="text" id="loginUser" class="auth-input" placeholder="Username" autocomplete="off">
+      <input type="password" id="loginPass" class="auth-input" placeholder="Password" autocomplete="off">
+      <button type="button" class="btn" id="btnLogin">Log In</button>
       <div class="auth-switch-container">
         <button type="button" class="auth-switch-btn" id="toRegisterBtn">Don't have an account? Register</button>
       </div>
@@ -284,11 +276,9 @@
     <!-- REGISTER BOX -->
     <div class="auth-box" id="regBox" style="display: none;">
       <h2>Register</h2>
-      <form class="auth-form" id="regForm">
-        <input type="text" id="regUser" class="auth-input" placeholder="Username" required autocomplete="username">
-        <input type="password" id="regPass" class="auth-input" placeholder="Password" required autocomplete="new-password">
-        <button type="submit" class="btn" id="btnReg">Create Account</button>
-      </form>
+      <input type="text" id="regUser" class="auth-input" placeholder="Username" autocomplete="off">
+      <input type="password" id="regPass" class="auth-input" placeholder="Password" autocomplete="off">
+      <button type="button" class="btn" id="btnReg">Create Account</button>
       <div class="auth-switch-container">
         <button type="button" class="auth-switch-btn" id="toLoginBtn">Already have an account? Log In</button>
       </div>
@@ -344,15 +334,14 @@
       listenRealtime();
     }
 
-    // DIRECT EVENT LISTENERS FOR MENU SWITCHING
-    document.getElementById('toRegisterBtn').addEventListener('click', function(e) {
-      e.preventDefault();
+    // SWITCH TO REGISTER MENU
+    document.getElementById('toRegisterBtn').addEventListener('click', function() {
       document.getElementById('loginBox').style.display = 'none';
       document.getElementById('regBox').style.display = 'flex';
     });
 
-    document.getElementById('toLoginBtn').addEventListener('click', function(e) {
-      e.preventDefault();
+    // SWITCH TO LOGIN MENU
+    document.getElementById('toLoginBtn').addEventListener('click', function() {
       document.getElementById('regBox').style.display = 'none';
       document.getElementById('loginBox').style.display = 'flex';
     });
@@ -362,8 +351,7 @@
     }
 
     // REGISTER ACCOUNT
-    document.getElementById('regForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+    document.getElementById('btnReg').addEventListener('click', async function() {
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
@@ -381,8 +369,7 @@
     });
 
     // LOGIN ACCOUNT
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
+    document.getElementById('btnLogin').addEventListener('click', async function() {
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
