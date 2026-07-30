@@ -3,606 +3,468 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sidetalkk — Modern Web Messenger</title>
-
-  <!-- Google Fonts & Font Awesome Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-
+  <title>Sidetalkk — Simple & Clean Live Chat</title>
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --card-border: rgba(255, 255, 255, 0.6);
+      --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+      --card-bg: #ffffff;
       --text-main: #1e293b;
       --text-muted: #64748b;
       --accent: #6366f1;
       --accent-hover: #4f46e5;
-      --bubble-sent: #6366f1;
-      --bubble-sent-text: #ffffff;
-      --bubble-received: #f1f5f9;
-      --bubble-received-text: #0f172a;
-      --input-bg: #f8fafc;
-      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.07);
-    }
-
-    [data-theme="dark"] {
-      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-      --card-bg: rgba(30, 41, 59, 0.85);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #818cf8;
-      --accent-hover: #6366f1;
-      --bubble-sent: #6366f1;
-      --bubble-sent-text: #ffffff;
-      --bubble-received: #334155;
-      --bubble-received-text: #f8fafc;
-      --input-bg: #1e293b;
-      --shadow-lg: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+      --msg-sent: #6366f1;
+      --msg-sent-text: #ffffff;
+      --msg-received: #f1f5f9;
+      --msg-received-text: #0f172a;
+      --border: #e2e8f0;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    body, html {
-      height: 100%;
-      width: 100%;
+    body {
       background: var(--bg-gradient);
+      color: var(--text-main);
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
+      padding: 1rem;
     }
 
-    /* Floating Window Card Layout */
-    .app-card {
+    /* Floating Chat Shell */
+    .chat-app {
       width: 100%;
-      max-width: 900px;
-      height: 88vh;
+      max-width: 650px;
+      height: 85vh;
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
       border-radius: 24px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15);
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.8);
       position: relative;
     }
 
-    /* App Header */
-    .app-header {
-      padding: 18px 24px;
+    /* Header */
+    .chat-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
     }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #818cf8, #c084fc);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .user-details h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    .user-status {
-      font-size: 0.75rem;
-      color: #10b981;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      background: none;
-      border: none;
+    .user-tag {
+      font-size: 0.85rem;
       color: var(--text-muted);
-      cursor: pointer;
-      font-size: 1.1rem;
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
+      gap: 0.4rem;
     }
 
-    .icon-btn:hover {
-      background: var(--input-bg);
+    .user-tag input {
+      border: none;
+      background: #f1f5f9;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      font-weight: 600;
       color: var(--text-main);
+      outline: none;
+      width: 110px;
     }
 
-    /* Messages Box */
+    /* Messages Display */
     .messages-container {
-      flex-grow: 1;
-      padding: 24px;
+      flex: 1;
+      padding: 1.5rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 0.8rem;
     }
 
-    .message-wrapper {
+    .message {
       display: flex;
       flex-direction: column;
-      max-width: 68%;
+      max-width: 75%;
+      animation: fadeIn 0.2s ease-in-out;
     }
 
-    .message-wrapper.sent {
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.sent {
       align-self: flex-end;
       align-items: flex-end;
     }
 
-    .message-wrapper.received {
+    .message.received {
       align-self: flex-start;
       align-items: flex-start;
     }
 
-    .message-bubble {
-      padding: 12px 18px;
-      border-radius: 20px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      word-break: break-word;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    .message-info {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+      padding: 0 0.2rem;
     }
 
-    .message-wrapper.sent .message-bubble {
-      background-color: var(--bubble-sent);
-      color: var(--bubble-sent-text);
+    .message-bubble {
+      padding: 0.75rem 1rem;
+      border-radius: 18px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message.sent .message-bubble {
+      background-color: var(--msg-sent);
+      color: var(--msg-sent-text);
       border-bottom-right-radius: 4px;
     }
 
-    .message-wrapper.received .message-bubble {
-      background-color: var(--bubble-received);
-      color: var(--bubble-received-text);
+    .message.received .message-bubble {
+      background-color: var(--msg-received);
+      color: var(--msg-received-text);
       border-bottom-left-radius: 4px;
     }
 
-    .message-media {
-      max-width: 260px;
-      border-radius: 14px;
-      margin-top: 6px;
+    .message-bubble img.gif-img {
+      max-width: 200px;
+      border-radius: 12px;
       display: block;
+      margin-top: 0.3rem;
     }
 
-    .message-time {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-      padding: 0 4px;
-    }
-
-    /* Input Footer & Floating Bars */
-    .input-area {
-      padding: 16px 24px;
-      border-top: 1px solid var(--card-border);
-      position: relative;
-    }
-
-    /* Emoji Picker Bar */
-    .emoji-picker-bar {
-      position: absolute;
-      bottom: 80px;
-      left: 24px;
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--card-border);
-      padding: 8px 12px;
-      border-radius: 30px;
-      display: none;
-      gap: 10px;
-      box-shadow: var(--shadow-lg);
-      z-index: 100;
-    }
-
-    .emoji-picker-bar.show {
+    /* Toolbar for Emojis & GIFs */
+    .quick-toolbar {
+      padding: 0.4rem 1rem;
       display: flex;
-    }
-
-    .emoji-item {
-      font-size: 1.3rem;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-
-    .emoji-item:hover {
-      transform: scale(1.3);
-    }
-
-    .input-box {
-      display: flex;
+      gap: 0.5rem;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
       align-items: center;
-      gap: 10px;
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 30px;
-      padding: 8px 12px 8px 18px;
+    }
+
+    .tool-btn {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .tool-btn:hover {
+      background: #e2e8f0;
+    }
+
+    /* Input Controls */
+    .input-area {
+      padding: 0.8rem 1rem 1rem 1rem;
+      display: flex;
+      gap: 0.6rem;
+      background: #f8fafc;
     }
 
     .chat-input {
-      flex-grow: 1;
-      background: none;
-      border: none;
+      flex: 1;
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 14px;
       outline: none;
-      color: var(--text-main);
       font-size: 0.95rem;
+      transition: border 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--accent);
     }
 
     .send-btn {
-      background-color: var(--accent);
+      background: var(--accent);
       color: white;
       border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      padding: 0.75rem 1.25rem;
+      border-radius: 14px;
+      font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s ease, transform 0.1s ease;
+      transition: background 0.2s;
     }
 
     .send-btn:hover {
-      background-color: var(--accent-hover);
+      background: var(--accent-hover);
     }
 
-    .send-btn:active {
-      transform: scale(0.92);
-    }
-
-    /* GIF Modal Overlay */
+    /* Modal for GIF Selection */
     .gif-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(8px);
       display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-    }
-
-    .gif-modal.show {
-      display: flex;
-    }
-
-    .gif-card {
-      width: 90%;
-      max-width: 440px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .gif-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .gif-header h3 {
-      font-size: 1rem;
-      color: var(--text-main);
+      position: absolute;
+      bottom: 70px;
+      left: 1rem;
+      right: 1rem;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+      z-index: 100;
     }
 
     .gif-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      max-height: 280px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      max-height: 200px;
       overflow-y: auto;
+      margin-top: 0.5rem;
     }
 
-    .gif-option {
+    .gif-grid img {
       width: 100%;
-      height: 110px;
+      height: 80px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.1s;
     }
 
-    .gif-option:hover {
-      transform: scale(1.03);
+    .gif-grid img:hover {
+      transform: scale(1.05);
     }
   </style>
 </head>
-<body data-theme="light">
+<body>
 
-  <div class="app-card">
+  <div class="chat-app">
     <!-- Header -->
-    <header class="app-header">
-      <div class="user-info">
-        <div class="avatar">S</div>
-        <div class="user-details">
-          <h2>Sidetalkk Space</h2>
-          <div class="user-status"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Active Session</div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-        <button class="icon-btn" id="clearChatBtn" title="Clear Chat History">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
+    <header class="chat-header">
+      <div class="brand-title">Sidetalkk</div>
+      <div class="user-tag">
+        <span>You:</span>
+        <input type="text" id="usernameInput" value="Alex" maxlength="12" />
       </div>
     </header>
 
-    <!-- Chat Messages Container -->
-    <main class="messages-container" id="messagesContainer">
-      <!-- Messages load dynamically -->
-    </main>
+    <!-- Message Area -->
+    <div id="messagesContainer" class="messages-container"></div>
 
-    <!-- Input Bar & Floating Tools -->
-    <footer class="input-area">
-      <!-- Quick Emoji Bar -->
-      <div class="emoji-picker-bar" id="emojiPickerBar">
-        <span class="emoji-item">👍</span>
-        <span class="emoji-item">❤️</span>
-        <span class="emoji-item">😂</span>
-        <span class="emoji-item">🔥</span>
-        <span class="emoji-item">✨</span>
-        <span class="emoji-item">🎉</span>
-      </div>
-
-      <div class="input-box">
-        <button class="icon-btn" id="emojiToggleBtn" title="Emojis">
-          <i class="fa-regular fa-face-smile"></i>
-        </button>
-        <button class="icon-btn" id="gifModalBtn" title="Send GIF">
-          <i class="fa-solid fa-film"></i>
-        </button>
-        <input type="text" id="chatInput" class="chat-input" placeholder="Type a message..." autocomplete="off" />
-        <button class="send-btn" id="sendBtn">
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </footer>
-
-    <!-- GIF Picker Modal -->
-    <div class="gif-modal" id="gifModal">
-      <div class="gif-card">
-        <div class="gif-header">
-          <h3>Select a GIF</h3>
-          <button class="icon-btn" id="closeGifModalBtn"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="gif-grid" id="gifGrid">
-          <!-- Curated High-Quality Animated GIFs -->
-          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHYyOXl0a29mNDlxbXJocm01NWszczE5bzYxczhsbDhrOG9xZHN2bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlHJGHe3yAMhdQY/giphy.gif" alt="GIF" />
-          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnE4aXltZXJ2MWsxeWdseG1udm8yODNlMHdrMHZzcHNxeW9vNGZldyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsjLu9N65q5o8U/giphy.gif" alt="GIF" />
-          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmsyd3VpdXRvb2RmbThmdmE3Nmc3Y2M1MnYwZXpobXlkaGRpdzgzYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26u4b45b8KXYABiju/giphy.gif" alt="GIF" />
-          <img class="gif-option" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYxMWw0Zng4ZjNjcXZrMjJmdzhxNWszdTFjYzYxaHFxeW85bXBkNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT0xezQGU5xCDJuCPe/giphy.gif" alt="GIF" />
-        </div>
-      </div>
+    <!-- Quick Tool Bar (Emoji & GIF toggle) -->
+    <div class="quick-toolbar">
+      <button class="tool-btn" data-emoji="😊">😊</button>
+      <button class="tool-btn" data-emoji="😂">😂</button>
+      <button class="tool-btn" data-emoji="🔥">🔥</button>
+      <button class="tool-btn" data-emoji="👍">👍</button>
+      <button class="tool-btn" data-emoji="❤️">❤️</button>
+      <button id="gifToggleBtn" class="tool-btn" style="font-size:0.85rem; font-weight:bold; background:#e0e7ff; color:#4f46e5;">GIF</button>
     </div>
+
+    <!-- GIF Selection Popup -->
+    <div id="gifModal" class="gif-modal">
+      <div style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-bottom:0.4rem;">Select a GIF</div>
+      <div class="gif-grid" id="gifGrid"></div>
+    </div>
+
+    <!-- Bottom Input -->
+    <footer class="input-area">
+      <input type="text" id="messageInput" class="chat-input" placeholder="Type a message..." autocomplete="off" />
+      <button id="sendBtn" class="send-btn">Send</button>
+    </footer>
   </div>
 
+  <!-- Firebase Integration Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
       authDomain: "sidetalkk.firebaseapp.com",
-      databaseURL: "https://sidetalkk-default-rtdb.firebaseio.com",
       projectId: "sidetalkk",
       storageBucket: "sidetalkk.firebasestorage.app",
       messagingSenderId: "585493665739",
       appId: "1:585493665739:web:e4b00ea7117e71fcb2084e",
-      measurementId: "G-6SYMK7PYGY"
+      measurementId: "G-6SYMK7PYGY",
+      databaseURL: "https://sidetalkk-default-rtdb.firebaseio.com" // Standard RTDB URL
     };
 
-    let db = null;
-    let isFirebaseActive = false;
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, 'messages');
 
-    // Unique user ID to identify messages sent by you vs others
-    let userId = localStorage.getItem("sidetalkk_user_id") || "user_" + Math.random().toString(36).substring(2, 9);
-    localStorage.setItem("sidetalkk_user_id", userId);
+    // Preset GIFs
+    const presetGIFs = [
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3A5MHFvZzN2ZjB1dDJzbHN4ZmprZjBiaThseXlyM3Y1bWV0dDNwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2F3OWEydmtzcWwxeHdyOHBrcmRxbTJ4d3Rwc2Q1eWZpbnFid2dpZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3q2K5jinAlChoCLS/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOThmZWExOWp2b2kxaHFzc3A4NnJqZXdtbWpqcTF4cnYyazBycjU3eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT0xezQGU5xCDJuCPe/giphy.gif",
+      "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcm5md2tjdXB0czIwbXdpb3ZrcXJscTVtbnNiaXZhbjJtdTJyNDR1MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKsjLuLXS26CD6w/giphy.gif"
+    ];
 
-    try {
-      const app = initializeApp(firebaseConfig);
-      db = getDatabase(app);
-      isFirebaseActive = true;
-      console.log("Sidetalkk: Successfully connected to Firebase!");
-    } catch (err) {
-      console.error("Sidetalkk: Firebase connection error. Falling back to local storage.", err);
+    const state = {
+      user: localStorage.getItem('sidetalkk_user') || 'Alex',
+      messages: []
+    };
+
+    const elements = {
+      usernameInput: document.getElementById('usernameInput'),
+      messagesContainer: document.getElementById('messagesContainer'),
+      messageInput: document.getElementById('messageInput'),
+      sendBtn: document.getElementById('sendBtn'),
+      gifToggleBtn: document.getElementById('gifToggleBtn'),
+      gifModal: document.getElementById('gifModal'),
+      gifGrid: document.getElementById('gifGrid')
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      elements.usernameInput.value = state.user;
+      setupListeners();
+      loadGIFs();
+      listenForFirebaseMessages();
+    });
+
+    function setupListeners() {
+      // Send message
+      elements.sendBtn.addEventListener('click', () => sendTextMessage());
+
+      // Enter Key
+      elements.messageInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendTextMessage();
+        }
+      });
+
+      // User name edit
+      elements.usernameInput.addEventListener('change', (e) => {
+        state.user = e.target.value.trim() || 'Alex';
+        localStorage.setItem('sidetalkk_user', state.user);
+      });
+
+      // Quick Emojis
+      document.querySelectorAll('.tool-btn[data-emoji]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          elements.messageInput.value += btn.dataset.emoji;
+          elements.messageInput.focus();
+        });
+      });
+
+      // Toggle GIF modal
+      elements.gifToggleBtn.addEventListener('click', () => {
+        const isVisible = elements.gifModal.style.display === 'block';
+        elements.gifModal.style.display = isVisible ? 'none' : 'block';
+      });
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // DOM Elements
-      const messagesContainer = document.getElementById("messagesContainer");
-      const chatInput = document.getElementById("chatInput");
-      const sendBtn = document.getElementById("sendBtn");
-      const themeToggleBtn = document.getElementById("themeToggleBtn");
-      const clearChatBtn = document.getElementById("clearChatBtn");
-      const emojiToggleBtn = document.getElementById("emojiToggleBtn");
-      const emojiPickerBar = document.getElementById("emojiPickerBar");
-      const gifModalBtn = document.getElementById("gifModalBtn");
-      const gifModal = document.getElementById("gifModal");
-      const closeGifModalBtn = document.getElementById("closeGifModalBtn");
-      const gifGrid = document.getElementById("gifGrid");
-
-      let messages = [];
-
-      // Send Message Handler
-      function sendMessage(text = "", gifUrl = null) {
-        const cleanText = text.trim();
-        if (!cleanText && !gifUrl) return;
-
-        const newMessage = {
-          senderId: userId,
-          text: cleanText,
-          gifUrl: gifUrl,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          createdAt: Date.now()
-        };
-
-        if (isFirebaseActive && db) {
-          push(ref(db, 'sidetalkk_messages'), newMessage)
-            .catch(err => console.error("Firebase send failed:", err));
-        } else {
-          messages.push(newMessage);
-          saveAndRenderLocal();
-        }
-
-        chatInput.value = "";
-        emojiPickerBar.classList.remove("show");
-      }
-
-      // Live Firebase Listener
-      if (isFirebaseActive && db) {
-        onValue(ref(db, 'sidetalkk_messages'), (snapshot) => {
-          const data = snapshot.val();
-          messages = data ? Object.values(data) : [];
-          renderMessages();
+    function loadGIFs() {
+      elements.gifGrid.innerHTML = '';
+      presetGIFs.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.addEventListener('click', () => {
+          sendGIFMessage(url);
+          elements.gifModal.style.display = 'none';
         });
-      } else {
-        messages = JSON.parse(localStorage.getItem("sidetalkk_messages") || "[]");
-        renderMessages();
-      }
-
-      // Event Bindings
-      sendBtn.addEventListener("click", () => sendMessage(chatInput.value));
-
-      chatInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          sendMessage(chatInput.value);
-        }
+        elements.gifGrid.appendChild(img);
       });
+    }
 
-      // Emoji Toggle & Insertion
-      emojiToggleBtn.addEventListener("click", () => {
-        emojiPickerBar.classList.toggle("show");
-      });
+    function sendTextMessage() {
+      const text = elements.messageInput.value.trim();
+      if (!text) return;
 
-      emojiPickerBar.addEventListener("click", (e) => {
-        if (e.target.classList.contains("emoji-item")) {
-          chatInput.value += e.target.textContent;
-          chatInput.focus();
-        }
-      });
+      pushMessageToFirebase({ text: text, type: 'text' });
+      elements.messageInput.value = '';
+    }
 
-      // GIF Modal Logic
-      gifModalBtn.addEventListener("click", () => gifModal.classList.add("show"));
-      closeGifModalBtn.addEventListener("click", () => gifModal.classList.remove("show"));
+    function sendGIFMessage(url) {
+      pushMessageToFirebase({ url: url, type: 'gif' });
+    }
 
-      gifGrid.addEventListener("click", (e) => {
-        if (e.target.tagName === "IMG") {
-          const gifUrl = e.target.src;
-          sendMessage("", gifUrl);
-          gifModal.classList.remove("show");
-        }
-      });
+    // Push live message to Firebase Realtime Database
+    function pushMessageToFirebase(payload) {
+      const msg = {
+        sender: state.user,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: Date.now(),
+        ...payload
+      };
 
-      // Theme Switcher
-      themeToggleBtn.addEventListener("click", () => {
-        const currentTheme = document.body.getAttribute("data-theme");
-        const nextTheme = currentTheme === "dark" ? "light" : "dark";
-        document.body.setAttribute("data-theme", nextTheme);
-        themeToggleBtn.innerHTML = nextTheme === "dark" ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-      });
+      push(messagesRef, msg);
+    }
 
-      // Clear History
-      clearChatBtn.addEventListener("click", () => {
-        if (confirm("Clear all messages?")) {
-          if (isFirebaseActive && db) {
-            remove(ref(db, 'sidetalkk_messages'))
-              .catch(err => console.error("Firebase clear failed:", err));
-          } else {
-            messages = [];
-            saveAndRenderLocal();
-          }
-        }
-      });
-
-      function saveAndRenderLocal() {
-        localStorage.setItem("sidetalkk_messages", JSON.stringify(messages));
-        renderMessages();
-      }
-
-      function renderMessages() {
-        messagesContainer.innerHTML = "";
+    // Listen for incoming live Firebase messages
+    function listenForFirebaseMessages() {
+      onValue(messagesRef, (snapshot) => {
+        const data = snapshot.val();
+        state.messages = [];
         
-        if (messages.length === 0) {
-          messagesContainer.innerHTML = `
-            <div style="text-align: center; color: var(--text-muted); margin-top: 40px; font-size: 0.85rem;">
-              No messages yet. Say hello! 👋
-            </div>`;
-          return;
+        if (data) {
+          Object.keys(data).forEach(key => {
+            state.messages.push(data[key]);
+          });
+          // Sort by time created
+          state.messages.sort((a, b) => a.createdAt - b.createdAt);
+        }
+        
+        renderMessages();
+      });
+    }
+
+    function renderMessages() {
+      elements.messagesContainer.innerHTML = '';
+
+      state.messages.forEach(msg => {
+        const isMe = msg.sender === state.user;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+
+        let contentHTML = '';
+        if (msg.type === 'gif') {
+          contentHTML = `<img src="${msg.url}" class="gif-img" alt="GIF" />`;
+        } else {
+          contentHTML = escapeHTML(msg.text);
         }
 
-        messages.forEach(msg => {
-          const wrapper = document.createElement("div");
-          const isSentByMe = msg.senderId === userId;
-          wrapper.className = `message-wrapper ${isSentByMe ? 'sent' : 'received'}`;
+        msgDiv.innerHTML = `
+          <div class="message-info">${msg.sender} • ${msg.timestamp}</div>
+          <div class="message-bubble">${contentHTML}</div>
+        `;
 
-          let contentHtml = '';
-          if (msg.text) {
-            contentHtml += `<div class="message-bubble">${sanitizeText(msg.text)}</div>`;
-          }
-          if (msg.gifUrl) {
-            contentHtml += `<img src="${msg.gifUrl}" class="message-media" alt="GIF" />`;
-          }
+        elements.messagesContainer.appendChild(msgDiv);
+      });
 
-          contentHtml += `<div class="message-time">${msg.timestamp}</div>`;
-          wrapper.innerHTML = contentHtml;
+      elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+    }
 
-          messagesContainer.appendChild(wrapper);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
-
-      // XSS Prevention Sanitizer
-      function sanitizeText(str) {
-        const temp = document.createElement('div');
-        temp.textContent = str;
-        return temp.innerHTML;
-      }
-    });
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] || tag));
+    }
   </script>
 </body>
 </html>
