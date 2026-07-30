@@ -335,13 +335,15 @@
     }
 
     // SWITCH TO REGISTER MENU
-    document.getElementById('toRegisterBtn').addEventListener('click', function() {
+    document.getElementById('toRegisterBtn').addEventListener('click', function(e) {
+      e.preventDefault();
       document.getElementById('loginBox').style.display = 'none';
       document.getElementById('regBox').style.display = 'flex';
     });
 
     // SWITCH TO LOGIN MENU
-    document.getElementById('toLoginBtn').addEventListener('click', function() {
+    document.getElementById('toLoginBtn').addEventListener('click', function(e) {
+      e.preventDefault();
       document.getElementById('regBox').style.display = 'none';
       document.getElementById('loginBox').style.display = 'flex';
     });
@@ -351,7 +353,8 @@
     }
 
     // REGISTER ACCOUNT
-    document.getElementById('btnReg').addEventListener('click', async function() {
+    document.getElementById('btnReg').addEventListener('click', async function(e) {
+      e.preventDefault();
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
@@ -369,7 +372,8 @@
     });
 
     // LOGIN ACCOUNT
-    document.getElementById('btnLogin').addEventListener('click', async function() {
+    document.getElementById('btnLogin').addEventListener('click', async function(e) {
+      e.preventDefault();
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
       if (!user || !pass) return alert("Fill in all fields!");
