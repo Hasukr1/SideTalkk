@@ -55,7 +55,7 @@
     padding:24px;
   }
   .phone{
-    width:390px; max-width:100%; height:820px; max-height:94vh;
+    width:420px; max-width:100%; height:850px; max-height:94vh;
     background:var(--bg-1);
     border-radius:var(--radius-lg);
     box-shadow:var(--shadow-frame);
@@ -66,7 +66,7 @@
   }
   .notch{
     position:absolute; top:10px; left:50%; transform:translateX(-50%);
-    width:110px; height:22px; background:var(--bg-0); border-radius:20px; z-index:50;
+    width:122px; height:22px; background:var(--bg-0); border-radius:20px; z-index:50;
     opacity:0.9;
   }
 
@@ -90,7 +90,7 @@
     z-index:2; box-shadow:0 12px 30px -8px var(--accent);
   }
   .login-title{ font-family:'Sora',sans-serif; font-weight:700; font-size:26px; color:var(--text); z-index:2; letter-spacing:-0.02em;}
-  .login-sub{ font-size:14px; color:var(--text-muted); z-index:2; max-width:260px; line-height:1.5;}
+  .login-sub{ font-size:14px; color:var(--text-muted); z-index:2; max-width:290px; line-height:1.5;}
   .login-form{ width:100%; display:flex; flex-direction:column; gap:12px; z-index:2; margin-top:4px;}
   .login-input{
     width:100%; padding:16px 18px; border-radius:var(--radius-md); border:1.5px solid var(--border);
@@ -124,15 +124,15 @@
   /* ---------- HEADER ---------- */
   .header{
     display:flex; align-items:center; justify-content:space-between;
-    padding:22px 18px 14px; border-bottom:1px solid var(--border);
-    background:var(--bg-1); z-index:10; flex-shrink:0;
+    padding:20px 20px 16px; border-bottom:1px solid var(--border);
+    background:var(--bg-1); z-index:10;
   }
-  .header-user{ display:flex; align-items:center; gap:10px; }
+  .header-user{ display:flex; align-items:center; gap:11px; }
   .avatar{
-    width:38px; height:38px; border-radius:50%;
+    width:40px; height:40px; border-radius:50%;
     background:linear-gradient(135deg,var(--accent),var(--accent-2));
     display:flex; align-items:center; justify-content:center;
-    font-family:'Sora',sans-serif; font-weight:700; color:#fff; font-size:15px;
+    font-family:'Sora',sans-serif; font-weight:700; color:#fff; font-size:15.5px;
     flex-shrink:0;
   }
   .header-name{ font-family:'Sora',sans-serif; font-weight:600; font-size:15px; color:var(--text); }
@@ -162,23 +162,24 @@
 
   /* ---------- MESSAGES ---------- */
   .messages{
-    flex:1; min-height:0; overflow-y:auto; padding:16px 14px 8px; display:flex; flex-direction:column; gap:14px;
+    flex:1; min-width:0; width:100%; overflow-y:auto; overflow-x:hidden; padding:18px 16px 10px; display:flex; flex-direction:column; gap:14px;
     scroll-behavior:smooth;
   }
   .messages::-webkit-scrollbar{ width:5px; }
   .messages::-webkit-scrollbar-track{ background:transparent; }
   .messages::-webkit-scrollbar-thumb{ background:var(--border); border-radius:10px; }
 
-  .msg-row{ display:flex; flex-direction:column; max-width:78%; animation:msgIn 0.28s cubic-bezier(.2,.8,.2,1); position:relative; }
+  .msg-row{ display:flex; flex-direction:column; max-width:80%; min-width:0; animation:msgIn 0.28s cubic-bezier(.2,.8,.2,1); position:relative; }
   @keyframes msgIn{ from{ opacity:0; transform:translateY(10px) scale(0.98); } to{ opacity:1; transform:translateY(0) scale(1);} }
   .msg-row.me{ align-self:flex-end; align-items:flex-end; }
   .msg-row.them{ align-self:flex-start; align-items:flex-start; }
   .msg-sender{ font-size:11px; color:var(--accent-2); font-family:'JetBrains Mono',monospace; margin:0 4px 4px; }
 
-  .bubble-wrap{ position:relative; }
+  .bubble-wrap{ position:relative; max-width:100%; min-width:0; }
   .bubble{
-    padding:11px 14px; border-radius:var(--radius-md); font-size:14.5px; line-height:1.45; color:var(--text);
-    word-wrap:break-word; position:relative; cursor:pointer; transition:filter 0.15s;
+    padding:12px 16px; border-radius:var(--radius-md); font-size:14.5px; line-height:1.5; color:var(--text);
+    max-width:100%; min-width:0; word-wrap:break-word; overflow-wrap:anywhere; word-break:break-word;
+    position:relative; cursor:pointer; transition:filter 0.15s;
   }
   .msg-row.me .bubble{
     background:var(--bubble-me); border-bottom-right-radius:5px;
@@ -186,18 +187,19 @@
   }
   .msg-row.them .bubble{ background:var(--bubble-them); border-bottom-left-radius:5px; border:1px solid var(--border); }
   .bubble.unsent{ font-style:italic; color:var(--text-muted); }
-  .bubble img.msg-media{ max-width:220px; border-radius:12px; display:block; margin-top:2px; }
-  .bubble .msg-text{ margin:0; }
+  .bubble img.msg-media{ max-width:min(230px, 100%); width:auto; height:auto; border-radius:12px; display:block; margin-top:6px; }
+  .bubble .msg-text{ margin:0; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
 
   .reply-preview{
     border-left:3px solid var(--accent); background:rgba(124,92,252,0.1); border-radius:8px;
     padding:5px 9px; margin-bottom:6px; font-size:12px; cursor:pointer;
   }
   .reply-preview .rp-sender{ color:var(--accent-2); font-weight:600; font-family:'JetBrains Mono',monospace; font-size:11px; }
-  .reply-preview .rp-text{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; max-width:220px; }
+  .reply-preview .rp-text{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; max-width:100%; }
 
   .msg-meta{ display:flex; align-items:center; gap:6px; margin-top:4px; padding:0 4px; }
   .msg-time{ font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+  .seen-by{ font-size:10px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; padding:0 4px; margin-top:2px; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   .reactions-row{ display:flex; gap:4px; margin-top:5px; flex-wrap:wrap; }
   .reaction-pill{
@@ -237,37 +239,37 @@
   /* ---------- REPLY BAR ---------- */
   .replying-bar{
     display:none; align-items:center; justify-content:space-between; padding:8px 14px; background:var(--surface-2);
-    border-top:1px solid var(--border); font-size:12.5px; flex-shrink:0;
+    border-top:1px solid var(--border); font-size:12.5px;
   }
   .replying-bar.open{ display:flex; animation:dropIn 0.15s ease; }
-  .replying-info{ display:flex; flex-direction:column; border-left:3px solid var(--accent); padding-left:8px; overflow:hidden; }
+  .replying-info{ display:flex; flex-direction:column; border-left:3px solid var(--accent); padding-left:8px; overflow:hidden; min-width:0; flex:1; }
   .replying-info b{ color:var(--accent-2); font-size:11.5px; font-family:'JetBrains Mono',monospace; }
-  .replying-info span{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:250px; }
+  .replying-info span{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
   .replying-cancel{ background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:0 6px; }
 
   /* ---------- WARNING BAR ---------- */
   .warning-bar{
     display:none; align-items:center; gap:8px; padding:9px 14px; background:rgba(255,107,107,0.12);
-    border-top:1px solid rgba(255,107,107,0.3); font-size:12px; color:var(--danger); flex-shrink:0;
+    border-top:1px solid rgba(255,107,107,0.3); font-size:12px; color:var(--danger);
   }
   .warning-bar.open{ display:flex; animation:dropIn 0.15s ease; }
 
   /* ---------- INPUT AREA ---------- */
-  .input-area{ border-top:1px solid var(--border); background:var(--bg-1); padding:10px 12px 14px; position:relative; flex-shrink:0; }
-  .input-row{ display:flex; align-items:flex-end; gap:8px; }
+  .input-area{ border-top:1px solid var(--border); background:var(--bg-1); padding:12px 16px 18px; position:relative; }
+  .input-row{ display:flex; align-items:flex-end; gap:10px; }
   .input-box{
-    flex:1; display:flex; align-items:center; background:var(--surface); border:1.5px solid var(--border);
-    border-radius:22px; padding:6px 6px 6px 16px; gap:6px; transition:border-color 0.15s;
+    flex:1; min-width:0; display:flex; align-items:center; background:var(--surface); border:1.5px solid var(--border);
+    border-radius:24px; padding:6px 6px 6px 18px; gap:6px; transition:border-color 0.15s;
   }
   .input-box:focus-within{ border-color:var(--accent); }
   .text-input{
     flex:1; border:none; outline:none; background:none; color:var(--text); font-size:14.5px; font-family:'Inter',sans-serif;
     padding:8px 0; max-height:90px; resize:none;
   }
-  .input-tool{ width:34px; height:34px; border-radius:50%; border:none; background:none; color:var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:color 0.15s, background 0.15s;}
+  .input-tool{ width:36px; height:36px; border-radius:50%; border:none; background:none; color:var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:color 0.15s, background 0.15s;}
   .input-tool:hover{ background:var(--surface-2); color:var(--accent); }
   .send-btn{
-    width:42px; height:42px; border-radius:50%; border:none; flex-shrink:0;
+    width:44px; height:44px; border-radius:50%; border:none; flex-shrink:0;
     background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; display:flex; align-items:center; justify-content:center;
     cursor:pointer; transition:transform 0.15s, opacity 0.2s; box-shadow:0 8px 20px -6px var(--accent);
   }
@@ -325,7 +327,7 @@
   </div>
 
   <!-- CHAT SCREEN -->
-  <div id="chatScreen" style="display:none; flex-direction:column; flex:1; min-height:0;">
+  <div id="chatScreen" style="display:none; flex-direction:column; flex:1; min-height:0; min-width:0;">
     <div class="header">
       <div class="header-user">
         <div class="avatar" id="myAvatar">?</div>
@@ -355,7 +357,7 @@
         <b id="replyingToName"></b>
         <span id="replyingToText"></span>
       </div>
-      <button class="replying-cancel" id="cancelReply">&times;</button>
+      <button class="replying-cancel" id="cancelReply">×</button>
     </div>
 
     <div class="warning-bar" id="warningBar">
@@ -402,7 +404,7 @@
   "use strict";
 
   /* =========================================================
-     1. FIREBASE CONFIG
+     1. FIREBASE CONFIG — replace with your own project keys
      ========================================================= */
   const firebaseConfig = {
     apiKey: "AIzaSyC1jajfkcVOL3vQfubhW5FFKWvAb3TkEck",
@@ -419,7 +421,7 @@
   const db = firebase.database();
   const messagesRef = db.ref("messages");
   const usersRef = db.ref("users");
-  try{ firebase.analytics(); }catch(e){}
+  try{ firebase.analytics(); }catch(e){ /* analytics blocked (ad-blocker, etc.) — app works fine without it */ }
 
   /* =========================================================
      2. STATE
@@ -427,14 +429,14 @@
   const LS_USER_KEY    = "novaChat_user";
   const LS_SESSION_KEY = "novaChat_sessionId";
   const LS_THEME_KEY   = "novaChat_theme";
-  const LS_HIDDEN_KEY  = "novaChat_hiddenMsgs";
+  const LS_HIDDEN_KEY  = "novaChat_hiddenMsgs"; // "delete for me" — local only
 
   let currentUser   = null;
   let sessionId     = null;
-  let replyingTo    = null;
+  let replyingTo    = null;             // { id, sender, preview }
   let hiddenMsgIds  = new Set();
   let messagesCache = {};
-  const UNSEND_WINDOW_MS = 5 * 60 * 1000;
+  const UNSEND_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
   const QUICK_EMOJIS = ["❤️","😂","👍","🔥"];
 
@@ -464,6 +466,16 @@
 
   /* =========================================================
      3. CONTENT MODERATION FILTER
+     ---------------------------------------------------------
+     Starter word list — intentionally a small, mild seed list.
+     For real slur/profanity coverage, plug in a maintained
+     source instead of hardcoding one (e.g. an npm package like
+     "bad-words"/"leo-profanity", a hosted moderation API such as
+     Google's Perspective API, or your own moderated list loaded
+     from Firebase so it can be updated without a redeploy).
+     The normalization below is what actually blocks bypasses —
+     the word list itself is just the input to it, so swapping
+     in a bigger list is a one-line change (BAD_WORDS = [...]).
      ========================================================= */
   const BAD_WORDS = ["damn","hell","crap","shit","fuck","bitch","asshole","bastard","dick","piss"];
 
@@ -475,8 +487,8 @@
   function normalizeForFilter(str){
     let s = (str || "").toLowerCase();
     s = s.split("").map(ch => LEET_MAP[ch] !== undefined ? LEET_MAP[ch] : ch).join("");
-    s = s.replace(/[^a-z]/g, "");
-    s = s.replace(/(.)\1{2,}/g, "$1$1");
+    s = s.replace(/[^a-z]/g, "");           // strips spaces, punctuation, symbols (catches "s h i t", "s.h.i.t")
+    s = s.replace(/(.)\1{2,}/g, "$1$1");    // collapses long letter runs ("shiiiit" -> "shiit") without merging real double letters
     return s;
   }
 
@@ -524,557 +536,646 @@
   const toastEl       = document.getElementById("toast");
 
   /* =========================================================
-     5. THEME SYSTEM
+     5. INIT
      ========================================================= */
-  const savedTheme = localStorage.getItem(LS_THEME_KEY) || "dark";
-  function setTheme(theme){
-    if(theme === "accent"){
-      document.documentElement.setAttribute("data-theme", "accent");
-      themeToggleBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>';
-      themeMenuItem.textContent = "Dark theme";
-    } else {
-      document.documentElement.removeAttribute("data-theme");
-      themeToggleBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
-      themeMenuItem.textContent = "Light theme";
+  function init(){
+    applyStoredTheme();
+    buildEmojiGrid();
+    buildGifGrid();
+    loadHiddenMsgIds();
+
+    sessionId = localStorage.getItem(LS_SESSION_KEY);
+    if(!sessionId){
+      sessionId = "sess_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem(LS_SESSION_KEY, sessionId);
     }
-    localStorage.setItem(LS_THEME_KEY, theme);
-  }
-  setTheme(savedTheme);
 
-  function toggleTheme(){
-    const current = localStorage.getItem(LS_THEME_KEY) || "dark";
-    setTheme(current === "dark" ? "accent" : "dark");
+    const savedUser = localStorage.getItem(LS_USER_KEY);
+    if(savedUser){
+      currentUser = savedUser;
+      reclaimOrEnter(savedUser);
+    }
+
+    bindEvents();
   }
 
-  themeToggleBtn.addEventListener("click", toggleTheme);
-  themeMenuItem.addEventListener("click", () => {
-    toggleTheme();
-    settingsMenu.classList.remove("open");
-  });
+  function bindEvents(){
+    loginForm.addEventListener("submit", onLogin);
+
+    textInput.addEventListener("input", ()=>{
+      sendBtn.disabled = textInput.value.trim().length === 0;
+      textInput.style.height = "auto";
+      textInput.style.height = Math.min(textInput.scrollHeight, 90) + "px";
+      hideWarning();
+    });
+    textInput.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        if(!sendBtn.disabled) sendMessage();
+      }
+    });
+    sendBtn.addEventListener("click", ()=> sendMessage());
+
+    emojiBtn.addEventListener("click", ()=> togglePicker("emoji"));
+    gifBtn.addEventListener("click", ()=> togglePicker("gif"));
+    tabEmoji.addEventListener("click", ()=> switchPickerTab("emoji"));
+    tabGif.addEventListener("click", ()=> switchPickerTab("gif"));
+
+    cancelReplyBtn.addEventListener("click", clearReplyState);
+
+    menuBtn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      settingsMenu.classList.toggle("open");
+    });
+    document.addEventListener("click", (e)=>{
+      if(!settingsMenu.contains(e.target) && e.target !== menuBtn){
+        settingsMenu.classList.remove("open");
+      }
+      closeAllContextMenus(e.target);
+    });
+    logoutBtn.addEventListener("click", logout);
+    themeToggleBtn.addEventListener("click", toggleTheme);
+    themeMenuItem.addEventListener("click", ()=>{ toggleTheme(); settingsMenu.classList.remove("open"); });
+
+    window.addEventListener("beforeunload", ()=>{
+      if(currentUser) usersRef.child(currentUser).remove();
+    });
+  }
 
   /* =========================================================
-     6. SESSION & LOGIN
+     6. LOGIN / USERNAME UNIQUENESS / SESSION
      ========================================================= */
-  try {
-    const hiddenStored = localStorage.getItem(LS_HIDDEN_KEY);
-    if(hiddenStored) hiddenMsgIds = new Set(JSON.parse(hiddenStored));
-  } catch(e){}
-
-  function showToast(msg, duration = 2200){
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), duration);
+  function setLoginBusy(isBusy){
+    loginBtn.disabled = isBusy;
+    loginBtnText.style.opacity = isBusy ? "0.6" : "1";
+    loginSpinner.classList.toggle("show", isBusy);
   }
-
-  sessionId = localStorage.getItem(LS_SESSION_KEY);
-  if(!sessionId){
-    sessionId = 'sess_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-    localStorage.setItem(LS_SESSION_KEY, sessionId);
+  function showLoginError(msg){
+    loginError.textContent = msg;
+    loginError.classList.add("show");
+    usernameInput.classList.add("error");
   }
-
-  const storedUser = localStorage.getItem(LS_USER_KEY);
-  if(storedUser){
-    currentUser = storedUser;
-    initChat();
-  } else {
-    loginScreen.style.display = "flex";
-    chatScreen.style.display = "none";
-    setTimeout(() => usernameInput.focus(), 100);
-  }
-
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const rawName = usernameInput.value.trim();
+  function clearLoginError(){
     loginError.classList.remove("show");
     usernameInput.classList.remove("error");
+  }
 
-    if(!rawName){
-      loginError.textContent = "Please enter a username.";
-      loginError.classList.add("show");
-      usernameInput.classList.add("error");
+  function onLogin(e){
+    e.preventDefault();
+    clearLoginError();
+    const name = usernameInput.value.trim();
+    if(!name) return;
+
+    if(containsProfanity(name)){
+      showLoginError("That username isn't allowed. Please choose another.");
       return;
     }
-    if(rawName.length < 2){
-      loginError.textContent = "Username must be at least 2 characters.";
-      loginError.classList.add("show");
-      usernameInput.classList.add("error");
-      return;
-    }
-    if(containsProfanity(rawName)){
-      loginError.textContent = "That username is not allowed.";
-      loginError.classList.add("show");
-      usernameInput.classList.add("error");
+    if(name.length < 2){
+      showLoginError("Username must be at least 2 characters.");
       return;
     }
 
-    loginBtn.disabled = true;
-    loginBtnText.textContent = "Connecting...";
-    loginSpinner.classList.add("show");
-
-    usersRef.child(rawName).once("value", (snapshot) => {
-      const data = snapshot.val();
-      const now = Date.now();
-      if(data && data.sessionId !== sessionId && (now - data.lastSeen < 180000)){
-        loginBtn.disabled = false;
-        loginBtnText.textContent = "Enter chat";
-        loginSpinner.classList.remove("show");
-        loginError.textContent = "Username is already in use by someone else right now.";
-        loginError.classList.add("show");
-        usernameInput.classList.add("error");
+    setLoginBusy(true);
+    usersRef.child(name).once("value").then(snap=>{
+      const existing = snap.val();
+      const isFree = !existing || existing.sessionId === sessionId;
+      if(!isFree){
+        setLoginBusy(false);
+        showLoginError("That username is already taken. Try another.");
         return;
       }
-
-      usersRef.child(rawName).set({ sessionId: sessionId, lastSeen: now }).then(() => {
-        currentUser = rawName;
-        localStorage.setItem(LS_USER_KEY, currentUser);
-        loginScreen.style.display = "none";
-        chatScreen.style.display = "flex";
-        initChat();
-      }).catch((err) => {
-        loginBtn.disabled = false;
-        loginBtnText.textContent = "Enter chat";
-        loginSpinner.classList.remove("show");
-        loginError.textContent = "Connection error. Please try again.";
-        loginError.classList.add("show");
+      currentUser = name;
+      localStorage.setItem(LS_USER_KEY, name);
+      claimUsername(name).then(()=>{
+        setLoginBusy(false);
+        enterChat();
       });
+    }).catch(()=>{
+      setLoginBusy(false);
+      showLoginError("Couldn't reach the server. Check your Firebase config and try again.");
     });
-  });
+  }
 
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem(LS_USER_KEY);
-    location.reload();
-  });
+  function reclaimOrEnter(name){
+    // Auto re-login for a returning session: reclaim the same username using the stored sessionId.
+    usersRef.child(name).once("value").then(snap=>{
+      const existing = snap.val();
+      if(existing && existing.sessionId !== sessionId){
+        // Someone else grabbed this name while we were away — fall back to login screen.
+        localStorage.removeItem(LS_USER_KEY);
+        currentUser = null;
+        return;
+      }
+      claimUsername(name).then(enterChat);
+    }).catch(()=>{
+      // If we can't reach Firebase yet, still show the chat shell; listeners will retry.
+      claimUsername(name).then(enterChat);
+    });
+  }
 
-  menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    settingsMenu.classList.toggle("open");
-  });
-  document.addEventListener("click", () => {
-    settingsMenu.classList.remove("open");
-  });
+  function claimUsername(name){
+    const userRef = usersRef.child(name);
+    userRef.onDisconnect().remove();
+    return userRef.set({ sessionId: sessionId, online: true, lastSeen: Date.now() });
+  }
 
-  /* =========================================================
-     7. CHAT LOGIC & RENDERING
-     ========================================================= */
-  function initChat(){
+  function enterChat(){
+    loginScreen.style.display = "none";
+    chatScreen.style.display = "flex";
     myName.textContent = currentUser;
     myAvatar.textContent = currentUser.charAt(0).toUpperCase();
+    listenForMessages();
+  }
 
-    setInterval(() => {
-      if(currentUser){
-        usersRef.child(currentUser).update({ lastSeen: firebase.database.ServerValue.TIMESTAMP, sessionId: sessionId });
-      }
-    }, 45000);
+  function logout(){
+    if(currentUser){
+      usersRef.child(currentUser).onDisconnect().cancel();
+      usersRef.child(currentUser).remove();
+    }
+    localStorage.removeItem(LS_USER_KEY);
+    currentUser = null;
+    messagesRef.off();
+    messagesCache = {};
+    messagesEl.innerHTML = "";
+    chatScreen.style.display = "none";
+    loginScreen.style.display = "flex";
+    usernameInput.value = "";
+    clearLoginError();
+    settingsMenu.classList.remove("open");
+  }
 
-    populateEmojiGrid();
-    populateGifGrid();
+  /* =========================================================
+     7. THEME
+     ========================================================= */
+  function applyStoredTheme(){
+    const saved = localStorage.getItem(LS_THEME_KEY) || "dark";
+    setTheme(saved);
+  }
+  function setTheme(theme){
+    document.documentElement.setAttribute("data-theme", theme === "accent" ? "accent" : "dark");
+    localStorage.setItem(LS_THEME_KEY, theme);
+    themeToggleBtn.innerHTML = theme === "accent"
+      ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>'
+      : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>';
+  }
+  function toggleTheme(){
+    const current = document.documentElement.getAttribute("data-theme") === "accent" ? "accent" : "dark";
+    setTheme(current === "accent" ? "dark" : "accent");
+  }
 
-    messagesRef.on("value", (snapshot) => {
-      const rawData = snapshot.val() || {};
-      messagesCache = rawData;
-      renderMessages(rawData);
+  /* =========================================================
+     8. HIDDEN MESSAGES ("delete for me" — local only)
+     ========================================================= */
+  function loadHiddenMsgIds(){
+    try{
+      const raw = localStorage.getItem(LS_HIDDEN_KEY);
+      hiddenMsgIds = new Set(raw ? JSON.parse(raw) : []);
+    }catch(e){ hiddenMsgIds = new Set(); }
+  }
+  function persistHiddenMsgIds(){
+    localStorage.setItem(LS_HIDDEN_KEY, JSON.stringify([...hiddenMsgIds]));
+  }
+  function hideForMe(id){
+    hiddenMsgIds.add(id);
+    persistHiddenMsgIds();
+    renderAll();
+    showToast("Message hidden for you");
+  }
+
+  /* =========================================================
+     9. FIREBASE LISTENERS
+     ========================================================= */
+  function listenForMessages(){
+    messagesRef.off();
+    messagesCache = {};
+
+    messagesRef.on("child_added", (snap)=>{
+      messagesCache[snap.key] = { id: snap.key, ...snap.val() };
+      renderAll();
+    });
+    messagesRef.on("child_changed", (snap)=>{
+      messagesCache[snap.key] = { id: snap.key, ...snap.val() };
+      renderAll();
+    });
+    messagesRef.on("child_removed", (snap)=>{
+      delete messagesCache[snap.key];
+      renderAll();
     });
   }
 
-  function formatTime(ts){
-    if(!ts) return "";
-    const d = new Date(ts);
-    let h = d.getHours();
-    const m = d.getMinutes().toString().padStart(2, "0");
-    const ampm = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `${h}:${m} ${ampm}`;
+  function sortedMessages(){
+    return Object.values(messagesCache).sort((a,b)=> (a.timestamp||0) - (b.timestamp||0));
   }
 
-  function formatDateDivider(ts){
-    const d = new Date(ts);
-    const today = new Date();
-    if(d.toDateString() === today.toDateString()) return "Today";
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    if(d.toDateString() === yesterday.toDateString()) return "Yesterday";
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  /* =========================================================
+     10. SENDING
+     ========================================================= */
+  function sendMessage(customPayload){
+    const text = customPayload && customPayload.text !== undefined ? customPayload.text : textInput.value.trim();
+    const type = customPayload && customPayload.type ? customPayload.type : "text";
+    const mediaUrl = customPayload && customPayload.mediaUrl ? customPayload.mediaUrl : null;
+
+    if(type === "text" && !text) return;
+
+    if(type === "text" && containsProfanity(text)){
+      showWarning("That message isn't allowed. Please rephrase it.");
+      return;
+    }
+
+    const payload = {
+      sender: currentUser,
+      type: type,
+      text: type === "text" ? text : "",
+      mediaUrl: mediaUrl,
+      timestamp: Date.now(),
+      reactions: {},
+      seenBy: {},
+      unsent: false,
+      replyTo: replyingTo ? { id: replyingTo.id, sender: replyingTo.sender, preview: replyingTo.preview } : null
+    };
+
+    messagesRef.push(payload);
+
+    textInput.value = "";
+    textInput.style.height = "auto";
+    sendBtn.disabled = true;
+    clearReplyState();
+    hideWarning();
+    closePicker();
   }
 
-  function renderMessages(data){
+  function showWarning(msg){
+    warningText.textContent = msg;
+    warningBar.classList.add("open");
+  }
+  function hideWarning(){
+    warningBar.classList.remove("open");
+  }
+
+  /* =========================================================
+     11. RENDERING
+     ========================================================= */
+  function renderAll(){
+    const all = sortedMessages().filter(m => !hiddenMsgIds.has(m.id));
     messagesEl.innerHTML = "";
-    const keys = Object.keys(data);
-    if(keys.length === 0){
-      emptyState.style.display = "block";
+
+    if(all.length === 0){
       messagesEl.appendChild(emptyState);
       return;
     }
-    emptyState.style.display = "none";
 
-    keys.sort((a, b) => (data[a].timestamp || 0) - (data[b].timestamp || 0));
+    let lastDay = null;
+    all.forEach(msg=>{
+      const day = new Date(msg.timestamp).toDateString();
+      if(day !== lastDay){
+        const divider = document.createElement("div");
+        divider.className = "day-divider";
+        divider.textContent = day === new Date().toDateString() ? "Today" : day;
+        messagesEl.appendChild(divider);
+        lastDay = day;
+      }
+      messagesEl.appendChild(renderMessage(msg));
+      markSeenIfNeeded(msg);
+    });
 
-    let lastDateStr = "";
-    let renderedCount = 0;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
 
-    keys.forEach(key => {
-      const msg = data[key];
-      if(!msg || hiddenMsgIds.has(key)) return;
+  function markSeenIfNeeded(msg){
+    if(msg.unsent) return;
+    if(msg.sender === currentUser) return;
+    const seenBy = msg.seenBy || {};
+    if(seenBy[currentUser]) return;
+    db.ref(`messages/${msg.id}/seenBy/${currentUser}`).set(true);
+  }
 
-      if(msg.timestamp){
-        const dStr = new Date(msg.timestamp).toDateString();
-        if(dStr !== lastDateStr){
-          lastDateStr = dStr;
-          const div = document.createElement("div");
-          div.className = "day-divider";
-          div.textContent = formatDateDivider(msg.timestamp);
-          messagesEl.appendChild(div);
+  function renderMessage(msg){
+    const isMe = msg.sender === currentUser;
+    const row = document.createElement("div");
+    row.className = "msg-row " + (isMe ? "me" : "them");
+    row.dataset.id = msg.id;
+
+    if(!isMe){
+      const senderEl = document.createElement("div");
+      senderEl.className = "msg-sender";
+      senderEl.textContent = msg.sender;
+      row.appendChild(senderEl);
+    }
+
+    const wrap = document.createElement("div");
+    wrap.className = "bubble-wrap";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble" + (msg.unsent ? " unsent" : "");
+
+    if(msg.replyTo){
+      const rp = document.createElement("div");
+      rp.className = "reply-preview";
+      rp.innerHTML = `<span class="rp-sender">${escapeHtml(msg.replyTo.sender)}</span><span class="rp-text">${escapeHtml(msg.replyTo.preview || "")}</span>`;
+      rp.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const target = messagesEl.querySelector(`[data-id="${msg.replyTo.id}"]`);
+        if(target){
+          target.scrollIntoView({behavior:"smooth", block:"center"});
+          target.style.filter = "brightness(1.4)";
+          setTimeout(()=> target.style.filter = "", 600);
         }
-      }
-
-      renderedCount++;
-      const isMe = msg.sender === currentUser;
-      const row = document.createElement("div");
-      row.className = `msg-row ${isMe ? "me" : "them"}`;
-      row.setAttribute("data-id", key);
-
-      if(!isMe){
-        const senderEl = document.createElement("div");
-        senderEl.className = "msg-sender";
-        senderEl.textContent = msg.sender;
-        row.appendChild(senderEl);
-      }
-
-      const bubbleWrap = document.createElement("div");
-      bubbleWrap.className = "bubble-wrap";
-
-      const quickBar = document.createElement("div");
-      quickBar.className = "quick-bar";
-      QUICK_EMOJIS.forEach(emo => {
-        const qBtn = document.createElement("button");
-        qBtn.className = "quick-emoji";
-        qBtn.textContent = emo;
-        qBtn.title = emo;
-        qBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          toggleReaction(key, emo);
-          bubbleWrap.classList.remove("active");
-        });
-        quickBar.appendChild(qBtn);
       });
-      const moreBtn = document.createElement("button");
-      moreBtn.className = "quick-more";
-      moreBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1.2"></circle><circle cx="12" cy="12" r="1.2"></circle><circle cx="12" cy="19" r="1.2"></circle></svg>';
-      moreBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleContext(bubbleWrap, key);
+      bubble.appendChild(rp);
+    }
+
+    if(msg.unsent){
+      bubble.appendChild(textNode("Message unsent"));
+    }else if(msg.type === "gif" || msg.type === "image"){
+      if(msg.text){
+        bubble.appendChild(textNode(msg.text));
+      }
+      const img = document.createElement("img");
+      img.src = msg.mediaUrl;
+      img.className = "msg-media";
+      img.alt = msg.type;
+      bubble.appendChild(img);
+    }else{
+      bubble.appendChild(textNode(msg.text));
+    }
+
+    wrap.appendChild(bubble);
+
+    if(!msg.unsent){
+      wrap.appendChild(buildQuickBar(msg));
+      wrap.appendChild(buildContextMenu(msg, isMe));
+
+      wrap.addEventListener("mouseenter", ()=>{ wrap.classList.add("active"); });
+      wrap.addEventListener("mouseleave", ()=>{ wrap.classList.remove("active"); });
+
+      let pressTimer;
+      bubble.addEventListener("touchstart", ()=>{
+        pressTimer = setTimeout(()=>{ wrap.classList.add("active"); }, 350);
       });
-      quickBar.appendChild(moreBtn);
-      bubbleWrap.appendChild(quickBar);
+      bubble.addEventListener("touchend", ()=> clearTimeout(pressTimer));
+    }
 
-      const ctxMenu = document.createElement("div");
-      ctxMenu.className = "msg-context";
-      
-      const replyCtx = document.createElement("button");
-      replyCtx.className = "ctx-item";
-      replyCtx.textContent = "Reply";
-      replyCtx.addEventListener("click", (e) => {
-        e.stopPropagation();
-        ctxMenu.classList.remove("open");
-        bubbleWrap.classList.remove("active");
-        setReplyingTo(key, msg);
-      });
-      ctxMenu.appendChild(replyCtx);
+    row.appendChild(wrap);
 
-      if(msg.type === "text" && !msg.unsent){
-        const copyCtx = document.createElement("button");
-        copyCtx.className = "ctx-item";
-        copyCtx.textContent = "Copy text";
-        copyCtx.addEventListener("click", (e) => {
-          e.stopPropagation();
-          ctxMenu.classList.remove("open");
-          bubbleWrap.classList.remove("active");
-          navigator.clipboard.writeText(msg.text || "").then(() => showToast("Copied to clipboard"));
-        });
-        ctxMenu.appendChild(copyCtx);
-      }
-
-      if(isMe && !msg.unsent && (Date.now() - (msg.timestamp || 0) < UNSEND_WINDOW_MS)){
-        const unsendCtx = document.createElement("button");
-        unsendCtx.className = "ctx-item danger";
-        unsendCtx.textContent = "Unsend";
-        unsendCtx.addEventListener("click", (e) => {
-          e.stopPropagation();
-          ctxMenu.classList.remove("open");
-          bubbleWrap.classList.remove("active");
-          messagesRef.child(key).update({ unsent: true, text: "This message was unsent.", type: "text", mediaUrl: null, replyTo: null });
-        });
-        ctxMenu.appendChild(unsendCtx);
-      }
-
-      const delMeCtx = document.createElement("button");
-      delMeCtx.className = "ctx-item danger";
-      delMeCtx.textContent = "Delete for me";
-      delMeCtx.addEventListener("click", (e) => {
-        e.stopPropagation();
-        ctxMenu.classList.remove("open");
-        bubbleWrap.classList.remove("active");
-        hiddenMsgIds.add(key);
-        try { localStorage.setItem(LS_HIDDEN_KEY, JSON.stringify([...hiddenMsgIds])); } catch(err){}
-        renderMessages(messagesCache);
-      });
-      ctxMenu.appendChild(delMeCtx);
-      bubbleWrap.appendChild(ctxMenu);
-
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      if(msg.unsent) bubble.classList.add("unsent");
-
-      if(msg.replyTo && data[msg.replyTo] && !msg.unsent){
-        const repData = data[msg.replyTo];
-        const rp = document.createElement("div");
-        rp.className = "reply-preview";
-        rp.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const targetEl = messagesEl.querySelector(`[data-id="${msg.replyTo}"]`);
-          if(targetEl){
-            targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
-            targetEl.style.transition = "background 0.3s";
-            targetEl.style.filter = "brightness(1.2)";
-            setTimeout(() => targetEl.style.filter = "", 800);
-          }
-        });
-        const rpSender = document.createElement("span");
-        rpSender.className = "rp-sender";
-        rpSender.textContent = repData.sender;
-        rp.appendChild(rpSender);
-
-        const rpText = document.createElement("span");
-        rpText.className = "rp-text";
-        rpText.textContent = repData.unsent ? "This message was unsent." : (repData.type === "gif" ? "[GIF]" : (repData.text || ""));
-        rp.appendChild(rpText);
-        bubble.appendChild(rp);
-      }
-
-      if(msg.type === "gif" && msg.mediaUrl && !msg.unsent){
-        const img = document.createElement("img");
-        img.className = "msg-media";
-        img.src = msg.mediaUrl;
-        img.alt = "GIF";
-        bubble.appendChild(img);
-      } else {
-        const p = document.createElement("p");
-        p.className = "msg-text";
-        p.textContent = msg.text || "";
-        bubble.appendChild(p);
-      }
-
-      bubble.addEventListener("click", () => {
-        const wasActive = bubbleWrap.classList.contains("active");
-        document.querySelectorAll(".bubble-wrap.active").forEach(el => el.classList.remove("active"));
-        document.querySelectorAll(".msg-context.open").forEach(el => el.classList.remove("open"));
-        if(!wasActive) bubbleWrap.classList.add("active");
-      });
-
-      bubbleWrap.appendChild(bubble);
-      row.appendChild(bubbleWrap);
-
-      if(msg.reactions && !msg.unsent){
-        const reactRow = document.createElement("div");
-        reactRow.className = "reactions-row";
-        Object.keys(msg.reactions).forEach(emoji => {
-          const usersMap = msg.reactions[emoji];
-          const uNames = Object.keys(usersMap || {});
-          if(uNames.length > 0){
-            const pill = document.createElement("div");
-            pill.className = "reaction-pill";
-            if(usersMap[currentUser]) pill.classList.add("mine");
-            pill.textContent = `${emoji} ${uNames.length}`;
-            pill.addEventListener("click", () => toggleReaction(key, emoji));
-            reactRow.appendChild(pill);
-          }
-        });
-        row.appendChild(reactRow);
-      }
-
+    if(!msg.unsent){
       const meta = document.createElement("div");
       meta.className = "msg-meta";
-      const timeEl = document.createElement("div");
-      timeEl.className = "msg-time";
-      timeEl.textContent = formatTime(msg.timestamp);
-      meta.appendChild(timeEl);
+      meta.innerHTML = `<span class="msg-time">${formatTime(msg.timestamp)}</span>`;
       row.appendChild(meta);
 
-      messagesEl.appendChild(row);
+      if(msg.reactions && Object.keys(msg.reactions).length){
+        row.appendChild(buildReactionsRow(msg));
+      }
+
+      if(isMe){
+        const seenNames = Object.keys(msg.seenBy || {}).filter(n => n !== currentUser);
+        if(seenNames.length){
+          const seenEl = document.createElement("div");
+          seenEl.className = "seen-by";
+          seenEl.textContent = "Seen by " + seenNames.join(", ");
+          row.appendChild(seenEl);
+        }
+      }
+    }
+
+    return row;
+  }
+
+  function buildQuickBar(msg){
+    const bar = document.createElement("div");
+    bar.className = "quick-bar";
+    QUICK_EMOJIS.forEach(emoji=>{
+      const b = document.createElement("button");
+      b.className = "quick-emoji";
+      b.textContent = emoji;
+      b.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        toggleReaction(msg, emoji);
+      });
+      bar.appendChild(b);
     });
-
-    if(renderedCount > 0){
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
+    const more = document.createElement("button");
+    more.className = "quick-more";
+    more.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.4"></circle><circle cx="12" cy="12" r="1.4"></circle><circle cx="19" cy="12" r="1.4"></circle></svg>';
+    more.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const ctx = e.currentTarget.closest(".bubble-wrap").querySelector(".msg-context");
+      closeAllContextMenus();
+      ctx.classList.add("open");
+    });
+    bar.appendChild(more);
+    return bar;
   }
 
-  messagesEl.addEventListener("click", (e) => {
-    if(e.target === messagesEl){
-      document.querySelectorAll(".bubble-wrap.active").forEach(el => el.classList.remove("active"));
-      document.querySelectorAll(".msg-context.open").forEach(el => el.classList.remove("open"));
-      pickerPanel.classList.remove("open");
-    }
-  });
+  function buildContextMenu(msg, isMe){
+    const menu = document.createElement("div");
+    menu.className = "msg-context";
 
-  function toggleContext(bubbleWrap, key){
-    const ctx = bubbleWrap.querySelector(".msg-context");
-    const isOpen = ctx.classList.contains("open");
-    document.querySelectorAll(".msg-context.open").forEach(el => el.classList.remove("open"));
-    if(!isOpen) ctx.classList.add("open");
+    const replyItem = document.createElement("button");
+    replyItem.className = "ctx-item";
+    replyItem.textContent = "Reply";
+    replyItem.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      setReplyState(msg);
+      closeAllContextMenus();
+    });
+    menu.appendChild(replyItem);
+
+    const hideItem = document.createElement("button");
+    hideItem.className = "ctx-item";
+    hideItem.textContent = "Delete for me";
+    hideItem.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      hideForMe(msg.id);
+      closeAllContextMenus();
+    });
+    menu.appendChild(hideItem);
+
+    if(isMe){
+      const withinUnsendWindow = (Date.now() - (msg.timestamp||0)) <= UNSEND_WINDOW_MS;
+      if(withinUnsendWindow){
+        const unsendItem = document.createElement("button");
+        unsendItem.className = "ctx-item";
+        unsendItem.textContent = "Unsend";
+        unsendItem.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          unsendMessage(msg.id);
+          closeAllContextMenus();
+        });
+        menu.appendChild(unsendItem);
+      }
+
+      const deleteAllItem = document.createElement("button");
+      deleteAllItem.className = "ctx-item danger";
+      deleteAllItem.textContent = "Delete for everyone";
+      deleteAllItem.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        deleteForAll(msg.id);
+        closeAllContextMenus();
+      });
+      menu.appendChild(deleteAllItem);
+    }
+
+    return menu;
   }
 
-  function toggleReaction(msgId, emoji){
-    const ref = messagesRef.child(`${msgId}/reactions/${emoji}/${currentUser}`);
-    ref.once("value", (snap) => {
-      if(snap.exists()){
-        ref.remove();
-      } else {
-        ref.set(true);
+  function buildReactionsRow(msg){
+    const row = document.createElement("div");
+    row.className = "reactions-row";
+    Object.entries(msg.reactions).forEach(([emoji, users])=>{
+      const names = Object.keys(users || {});
+      if(names.length === 0) return;
+      const pill = document.createElement("div");
+      pill.className = "reaction-pill" + (names.includes(currentUser) ? " mine" : "");
+      pill.innerHTML = `<span>${emoji}</span><span>${names.length}</span>`;
+      pill.addEventListener("click", ()=> toggleReaction(msg, emoji));
+      row.appendChild(pill);
+    });
+    return row;
+  }
+
+  /* =========================================================
+     12. MESSAGE ACTIONS (Firebase writes)
+     ========================================================= */
+  function toggleReaction(msg, emoji){
+    const reactions = msg.reactions || {};
+    const updates = {};
+
+    Object.keys(reactions).forEach(e=>{
+      if(reactions[e] && reactions[e][currentUser]){
+        updates[`messages/${msg.id}/reactions/${e}/${currentUser}`] = null;
       }
     });
+
+    const alreadyHadThis = reactions[emoji] && reactions[emoji][currentUser];
+    if(!alreadyHadThis){
+      updates[`messages/${msg.id}/reactions/${emoji}/${currentUser}`] = true;
+    }
+
+    db.ref().update(updates);
   }
 
-  function setReplyingTo(key, msg){
-    replyingTo = { id: key, sender: msg.sender, text: msg.unsent ? "This message was unsent." : (msg.type === "gif" ? "[GIF]" : (msg.text || "")) };
-    replyingToName.textContent = `Replying to ${msg.sender}`;
-    replyingToText.textContent = replyingTo.text;
+  function unsendMessage(id){
+    db.ref(`messages/${id}`).update({
+      unsent: true,
+      text: "",
+      mediaUrl: null,
+      reactions: {},
+      seenBy: {},
+      replyTo: null
+    });
+    showToast("Message unsent");
+  }
+
+  function deleteForAll(id){
+    db.ref(`messages/${id}`).remove();
+    showToast("Message deleted for everyone");
+  }
+
+  /* =========================================================
+     13. REPLY STATE
+     ========================================================= */
+  function setReplyState(msg){
+    let preview = msg.unsent ? "Message unsent" : (msg.type === "text" ? msg.text : (msg.type === "gif" ? "GIF" : "Image"));
+    replyingTo = { id: msg.id, sender: msg.sender, preview: preview };
+    replyingToName.textContent = msg.sender;
+    replyingToText.textContent = preview;
     replyingBar.classList.add("open");
     textInput.focus();
   }
-
-  cancelReplyBtn.addEventListener("click", () => {
+  function clearReplyState(){
     replyingTo = null;
     replyingBar.classList.remove("open");
-  });
-
-  /* =========================================================
-     8. SENDING & INPUT
-     ========================================================= */
-  textInput.addEventListener("input", () => {
-    sendBtn.disabled = !textInput.value.trim();
-    textInput.style.height = "auto";
-    textInput.style.height = Math.min(textInput.scrollHeight, 90) + "px";
-  });
-
-  textInput.addEventListener("keydown", (e) => {
-    if(e.key === "Enter" && !e.shiftKey){
-      e.preventDefault();
-      if(!sendBtn.disabled) sendMessage();
-    }
-  });
-
-  sendBtn.addEventListener("click", () => {
-    if(!sendBtn.disabled) sendMessage();
-  });
-
-  function sendMessage(mediaUrl = null, type = "text"){
-    const rawText = textInput.value.trim();
-    if(type === "text" && !rawText && !mediaUrl) return;
-
-    if(type === "text" && rawText && containsProfanity(rawText)){
-      warningBar.classList.add("open");
-      setTimeout(() => warningBar.classList.remove("open"), 4000);
-      return;
-    }
-
-    warningBar.classList.remove("open");
-
-    const msgData = {
-      sender: currentUser,
-      type: type,
-      text: type === "text" ? rawText : "",
-      mediaUrl: mediaUrl,
-      timestamp: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    if(replyingTo){
-      msgData.replyTo = replyingTo.id;
-    }
-
-    messagesRef.push(msgData).then(() => {
-      textInput.value = "";
-      textInput.style.height = "auto";
-      sendBtn.disabled = true;
-      replyingTo = null;
-      replyingBar.classList.remove("open");
-      pickerPanel.classList.remove("open");
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }).catch(err => {
-      showToast("Failed to send message");
-    });
   }
 
   /* =========================================================
-     9. PICKERS (Emoji & GIF)
+     14. PICKERS
      ========================================================= */
-  function populateEmojiGrid(){
+  function togglePicker(tab){
+    const isOpen = pickerPanel.classList.contains("open");
+    const currentTab = tabEmoji.classList.contains("active") ? "emoji" : "gif";
+    if(isOpen && currentTab === tab){
+      closePicker();
+    }else{
+      pickerPanel.classList.add("open");
+      switchPickerTab(tab);
+    }
+  }
+  function closePicker(){ pickerPanel.classList.remove("open"); }
+  function switchPickerTab(tab){
+    tabEmoji.classList.toggle("active", tab === "emoji");
+    tabGif.classList.toggle("active", tab === "gif");
+    emojiGrid.classList.toggle("hidden", tab !== "emoji");
+    gifGrid.classList.toggle("hidden", tab !== "gif");
+  }
+  function buildEmojiGrid(){
     emojiGrid.innerHTML = "";
-    EMOJI_LIST.forEach(em => {
-      const btn = document.createElement("button");
-      btn.className = "emoji-cell";
-      btn.textContent = em;
-      btn.addEventListener("click", () => {
-        textInput.value += em;
-        sendBtn.disabled = !textInput.value.trim();
+    EMOJI_LIST.forEach(emoji=>{
+      const b = document.createElement("button");
+      b.className = "emoji-cell";
+      b.textContent = emoji;
+      b.addEventListener("click", ()=>{
+        textInput.value += emoji;
+        textInput.dispatchEvent(new Event("input"));
         textInput.focus();
       });
-      emojiGrid.appendChild(btn);
+      emojiGrid.appendChild(b);
     });
   }
-
-  function populateGifGrid(){
+  function buildGifGrid(){
     gifGrid.innerHTML = "";
-    presetGIFs.forEach(url => {
+    presetGIFs.forEach(url=>{
       const cell = document.createElement("div");
       cell.className = "gif-cell";
       const img = document.createElement("img");
       img.src = url;
-      img.alt = "GIF";
+      img.loading = "lazy";
       cell.appendChild(img);
-      cell.addEventListener("click", () => {
-        sendMessage(url, "gif");
+      cell.addEventListener("click", ()=>{
+        sendMessage({ type:"gif", mediaUrl: url, text:"" });
       });
       gifGrid.appendChild(cell);
     });
   }
 
-  emojiBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    gifGrid.classList.add("hidden");
-    emojiGrid.classList.remove("hidden");
-    tabEmoji.classList.add("active");
-    tabGif.classList.remove("active");
-    pickerPanel.classList.toggle("open");
-  });
-
-  gifBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    emojiGrid.classList.add("hidden");
-    gifGrid.classList.remove("hidden");
-    tabGif.classList.add("active");
-    tabEmoji.classList.remove("active");
-    pickerPanel.classList.toggle("open");
-  });
-
-  tabEmoji.addEventListener("click", () => {
-    gifGrid.classList.add("hidden");
-    emojiGrid.classList.remove("hidden");
-    tabEmoji.classList.add("active");
-    tabGif.classList.remove("active");
-  });
-
-  tabGif.addEventListener("click", () => {
-    emojiGrid.classList.add("hidden");
-    gifGrid.classList.remove("hidden");
-    tabGif.classList.add("active");
-    tabEmoji.classList.remove("active");
-  });
-
-  document.addEventListener("click", (e) => {
-    if(!pickerPanel.contains(e.target) && e.target !== emojiBtn && e.target !== gifBtn){
-      pickerPanel.classList.remove("open");
+  /* =========================================================
+     15. HELPERS
+     ========================================================= */
+  function closeAllContextMenus(exceptTarget){
+    document.querySelectorAll(".msg-context.open").forEach(m=>{
+      if(!exceptTarget || !m.contains(exceptTarget)) m.classList.remove("open");
+    });
+    if(!exceptTarget){
+      document.querySelectorAll(".bubble-wrap.active").forEach(w=> w.classList.remove("active"));
     }
-  });
+  }
+  function formatTime(ts){
+    const d = new Date(ts || Date.now());
+    let h = d.getHours(), m = d.getMinutes();
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h}:${m.toString().padStart(2,"0")} ${ampm}`;
+  }
+  function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+  }
+  function textNode(str){
+    const p = document.createElement("p");
+    p.className = "msg-text";
+    p.textContent = str;
+    return p;
+  }
+  let toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 2200);
+  }
 
+  document.addEventListener("DOMContentLoaded", init);
 })();
 </script>
 </body>
